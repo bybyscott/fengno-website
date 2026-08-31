@@ -2680,25 +2680,25 @@ if(themePanelsEl){
       {speaker:'旁白', role:'narrator', text:'而真正的開端則是要從100百年前說起......'}
     ], nextText:'點擊進入下一頁'},
     { pageLabel:'02｜起源', lines:[
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-5.webp', text:'今天又要例行打掃觀音娘娘的寶物庫了，好麻煩'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-4.webp', text:'嗯?這個寶匣怎麼放在這?可以打開嗎???'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-helpless-v2.png', text:'今天又要例行打掃觀音娘娘的寶物庫了，好麻煩'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-smug-v2.png', text:'嗯?這個寶匣怎麼放在這?可以打開嗎???'},
       {speaker:'旁白', role:'narrator', text:'寶匣像有生命的晃動了一下，金童嚇的鬆手讓寶匣掉落在地上'},
       {speaker:'旁白', role:'narrator', text:'頓時，寶匣碎裂的同時，看見了無數黑煙快速竄出'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-4.webp', text:'……這寶匣怎麼那麼不堅固阿!????碰一下就壞了'}
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-surprised-v2.png', text:'……這寶匣怎麼那麼不堅固阿!????碰一下就壞了'}
     ], nextText:'點擊進入下一頁'},
     { pageLabel:'03｜惑種入世', lines:[
       {speaker:'旁白', role:'narrator', text:'還不知嚴重性的金童繼續打掃著寶庫，外界已經一片混亂。'},
       {speaker:'旁白', role:'narrator', text:'觀音娘娘召集了金童說明寶匣裡封印的東西-惑種!'},
       {speaker:'旁白', role:'narrator', text:'惑種喜歡待在人類的念頭裡，會不斷的纏住舊傷與執念。'},
       {speaker:'旁白', role:'narrator', text:'讓產生的念頭不斷折磨人類，以人的活力與情緒當養分壯大。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-1.webp', text:'雖然很不情願，但這禍是我闖的，還是得要自己收拾好。'}
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-serious-v2.png', text:'雖然很不情願，但這禍是我闖的，還是得要自己收拾好。'}
     ], nextText:'點擊進入下一頁'},
     { pageLabel:'04｜告非室', lines:[
       {speaker:'旁白', role:'narrator', text:'觀音娘娘先行派了八位神獸駐守八方場域，維持平衡。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-2.webp', text:'惑種喜歡藏在煩惱中，而且見光死，<br class="mobile-dialogue-break">只要找人說出口，我就可以回收惑種。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-5.webp', text:'這樣一個一個找太麻煩了，得想個辦法讓人聚集起來。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-2.webp', text:'叫告解室太正式了，既然是聽故事用告非室好了。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-6.webp', text:'告非聽起來也比較詼諧有趣吧。(有嗎?)'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-neutral-v2.png', text:'惑種喜歡藏在煩惱中，而且見光死，<br class="mobile-dialogue-break">只要找人說出口，我就可以回收惑種。'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-helpless-v2.png', text:'這樣一個一個找太麻煩了，得想個辦法讓人聚集起來。'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-smug-v2.png', text:'叫告解室太正式了，既然是聽故事用告非室好了。'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-dialogue-laugh-v2.png', text:'告非聽起來也比較詼諧有趣吧。(有嗎?)'},
       {speaker:'旁白', role:'narrator', text:'為此，金童又會發生什麼奇葩的事情呢?'}
     ], nextText:'進入告非室'},
   ];
@@ -3355,7 +3355,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     panels.innerHTML=C.themes.map(t=>`<button class="theme ${t.locked?'locked':''}" data-id="${t.id}" ${t.locked?'disabled aria-disabled="true"':''} style="--landscape:url('${t.landscape}');--book-color:${t.color}"><div class="theme-landscape"></div><div class="book-shell"><img src="${t.scroll}" alt="${t.title}封卷"></div></button>`).join('');
   }
   const profileImg=document.querySelector('.profile-character img');
-  if(profileImg){profileImg.src='assets/release/jintong-1.webp';profileImg.alt='金童立繪'}
+  if(profileImg){profileImg.src='assets/release/jintong-profile-full-v2.png';profileImg.alt='金童全身立繪'}
   const profileTitle=document.querySelector('.profile-copy h2');
   if(profileTitle) profileTitle.textContent='將將將將!';
   const selectedMap={people:'01 人際百鬼記',wealth:'02 財富堆金記',family:'03 家族聊齋記',work:'04 職場降魔記',health:'05 健康搜神記'};
@@ -3747,6 +3747,204 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   });
 })();
 </script>
+
+<style id="v034-jintong-standees">
+/* 新版金童半身立繪：保留圓框，人物可自然超出框緣。 */
+.dialogue-box[data-role="jintong"] .dialogue-portrait-wrap{
+  isolation:isolate!important;
+  overflow:visible!important;
+}
+.dialogue-box[data-role="jintong"] .dialogue-portrait-bg{
+  display:block!important;
+  position:absolute!important;
+  inset:6%!important;
+  width:auto!important;
+  height:auto!important;
+  border:2px solid rgba(218,164,64,.96)!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 42% 32%,#fffaf0 0%,#f8ead2 66%,#e2bd72 100%)!important;
+  box-shadow:0 0 0 3px rgba(255,232,174,.9),0 5px 12px rgba(75,43,12,.22)!important;
+  z-index:0!important;
+}
+.dialogue-box[data-role="jintong"] .dialogue-portrait{
+  inset:-14% -9% auto -9%!important;
+  width:118%!important;
+  height:118%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  z-index:1!important;
+}
+.dialogue-box[data-role="jintong"] .dialogue-speaker{
+  z-index:2!important;
+}
+
+/* 關於創作者：使用完整全身立繪。 */
+.profile-character{
+  overflow:visible!important;
+  justify-content:center!important;
+}
+.profile-character img{
+  width:auto!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+}
+
+@media(max-width:900px){
+  .dialogue-box[data-role="jintong"] .dialogue-portrait{
+    inset:-13% -8% auto -8%!important;
+    width:116%!important;
+    height:116%!important;
+  }
+}
+</style>
+
+<style id="v035-spacing-profile-scale">
+/* 箭頭貼近句尾，保留原本的慢速漂浮動畫。 */
+.dialogue-click-icon{
+  margin-left:-5px!important;
+}
+
+/* 個人頁金童放大 150%，名字跟在立繪右下角。 */
+.profile-character img{
+  transform:scale(1.5)!important;
+  transform-origin:center bottom!important;
+}
+.profile-character-label{
+  left:auto!important;
+  right:-28px!important;
+  bottom:0!important;
+  transform:none!important;
+}
+
+@media(max-width:900px){
+  /* 以整個手機畫面為基準置中台詞，而非受頭像與名字影響。 */
+  .dialogue-layer,
+  .dialogue-box,
+  .dialogue-content{
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  .dialogue-text{
+    width:max-content!important;
+    max-width:calc(100vw - 72px)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    justify-content:center!important;
+    text-align:center!important;
+  }
+  .dialogue-copy-text{
+    text-align:center!important;
+  }
+  .profile-character-label{
+    right:-12px!important;
+  }
+}
+</style>
+
+<style id="v036-profile-responsive-spacing">
+/* 電腦版：分隔線、立繪、介紹文字使用同一段欄距，並垂直置中。 */
+@media(min-width:901px){
+  .profile-inner{
+    width:min(1180px,88vw)!important;
+    grid-template-columns:minmax(130px,160px) minmax(280px,330px) minmax(300px,1fr)!important;
+    column-gap:clamp(20px,2.6vw,42px)!important;
+    row-gap:0!important;
+    align-items:center!important;
+  }
+  .profile-character,
+  .profile-copy{
+    align-self:center!important;
+  }
+  .profile-aside{
+    align-self:stretch!important;
+  }
+  .profile-character{
+    width:min(330px,100%)!important;
+    height:min(567px,72vh,49.5vw)!important;
+    min-height:0!important;
+    margin-right:0!important;
+  }
+  .profile-character img{
+    height:100%!important;
+    max-height:100%!important;
+    transform:none!important;
+  }
+  .profile-copy{
+    padding-left:0!important;
+  }
+  .profile-character-label{
+    right:-20px!important;
+  }
+}
+
+/* 手機版：用實際高度承接放大的立繪，文字自然排在下方、不再互相遮擋。 */
+@media(max-width:900px){
+  .profile-inner{
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-template-rows:auto auto auto!important;
+    align-items:start!important;
+    gap:clamp(28px,7vw,44px)!important;
+  }
+  .profile-character{
+    width:min(300px,78vw)!important;
+    height:clamp(340px,55vh,399px)!important;
+    min-height:0!important;
+    margin:0 auto!important;
+    overflow:visible!important;
+  }
+  .profile-character img{
+    width:auto!important;
+    height:100%!important;
+    max-width:100%!important;
+    max-height:100%!important;
+    transform:none!important;
+  }
+  .profile-character-label{
+    right:4px!important;
+    bottom:0!important;
+  }
+  .profile-copy{
+    width:100%!important;
+    padding:0!important;
+    margin:0!important;
+  }
+}
+</style>
+
+<style id="v037-mobile-dialogue-true-center">
+@media(max-width:900px){
+  /* 箭頭退出橫向排版計算，讓台詞文字本身落在畫面正中央。 */
+  .dialogue-text{
+    position:relative!important;
+    display:block!important;
+    width:fit-content!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .dialogue-copy-text{
+    display:block!important;
+    width:fit-content!important;
+    margin:0 auto!important;
+    text-align:center!important;
+  }
+  .dialogue-click-icon{
+    position:absolute!important;
+    left:calc(100% - 8px)!important;
+    right:auto!important;
+    top:50%!important;
+    bottom:auto!important;
+    margin:0!important;
+    transform:translateY(-50%)!important;
+  }
+}
+</style>
 
 </body>
 </html>
