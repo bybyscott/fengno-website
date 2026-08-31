@@ -2309,9 +2309,8 @@ body.menu-collapsed .brand-vert{
       </div>
       <div class="profile-copy">
         <div class="kicker">關 於 創 作 者</div>
-        <h2>這間房間的主人，<br>也在收集故事。</h2>
-        <p>這裡先作為個人自我介紹頁的介面原型。正式版本可以放你的創作背景、為什麼建立「風の告非室」、你如何使用牌卡與設計陪人整理煩惱，以及活動／預約方式。</p>
-        <p class="profile-note">目前先保留版位，不代填尚未確認的個人介紹文字。</p>
+        <h2>將將將將!</h2>
+        <p>為了活動表單而製作了這個網站<br>希望能把事情變的有趣而投注心力<br>希望你逛的開心</p>
         <button class="primary" id="profileBack" type="button">回到告非室</button>
       </div>
     </div>
@@ -2415,7 +2414,7 @@ qa('[data-story]').forEach((el,i)=>{
 
 // 八記直欄
 const panels=q('.theme-panels');
-C.themes.forEach((t,i)=>{ if(i>=5) t.locked=true; });
+C.themes.forEach((t,i)=>{ t.locked=i>=4; });
 panels.innerHTML=C.themes.map(t=>`<button class="theme ${t.locked?'locked':''}" data-id="${t.id}" ${t.locked?'disabled aria-disabled="true"':''} style="--tone:${t.tone};--landscape:url('${t.landscape}')"><img class="beast" src="${t.img}" alt="${t.beast}"><div class="theme-meta"><div class="sigil">${t.num}</div><div class="rail"></div><div class="booknum"><strong>${t.num}</strong><span>BOOK</span></div></div><div class="theme-title"><b>${t.title}</b><small>${t.beast}</small></div></button>`).join('');
 
 // 輕量點擊音效，不需要外部音檔。
@@ -2480,7 +2479,10 @@ function openDetail(id){
   q('#detailImg').src=t.img;
   q('#detailImg').alt=t.beast;
   const portal=q('#detailPortal'); if(portal) portal.setAttribute('aria-label', `${t.title}｜${t.beast}，點擊進入填寫煩惱頁`);
-  q('.detail').style.setProperty('--detail-bg',`url("${t.detailArt||t.landscape}")`);
+  const detailArt=window.matchMedia('(max-width:900px)').matches && t.mobileDetailArt
+    ? t.mobileDetailArt
+    : (t.detailArt||t.landscape);
+  q('.detail').style.setProperty('--detail-bg',`url("${detailArt}")`);
   q('.detail').style.setProperty('--detail-scene',`url("${t.landscape}")`);
   q('.detail').style.setProperty('--beast-mask',`url("${t.img}")`);
   q('.detail').style.setProperty('--detail-tone',t.tone||'#355c52');
@@ -2693,7 +2695,7 @@ if(themePanelsEl){
     ], nextText:'點擊進入下一頁'},
     { pageLabel:'04｜告非室', lines:[
       {speaker:'旁白', role:'narrator', text:'觀音娘娘先行派了八位神獸駐守八方場域，維持平衡。'},
-      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-2.webp', text:'惑種喜歡藏在煩惱中，而且見光死，只要找人說出口，我就可以回收惑種。'},
+      {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-2.webp', text:'惑種喜歡藏在煩惱中，而且見光死，<br class="mobile-dialogue-break">只要找人說出口，我就可以回收惑種。'},
       {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-5.webp', text:'這樣一個一個找太麻煩了，得想個辦法讓人聚集起來。'},
       {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-2.webp', text:'叫告解室太正式了，既然是聽故事用告非室好了。'},
       {speaker:'金童', role:'jintong', portrait:'assets/release/jintong-6.webp', text:'告非聽起來也比較詼諧有趣吧。(有嗎?)'},
@@ -2748,10 +2750,13 @@ if(themePanelsEl){
             <div class="dialogue-speaker">
               <span class="dialogue-name"></span>
             </div>
-            <div class="dialogue-text"><span class="dialogue-copy-text"></span><span class="dialogue-click-icon" aria-label="點擊繼續">➤</span></div>
+            <div class="dialogue-text"><span class="dialogue-copy-text"></span><span class="dialogue-click-icon" aria-label="點擊繼續"><img src="assets/release/dialogue-arrow-v2.webp" alt=""></span></div>
           </div>
         </div>
       </div>`;
+    const portraitWrap=scene.querySelector('.dialogue-portrait-wrap');
+    const speaker=scene.querySelector('.dialogue-speaker');
+    if(portraitWrap&&speaker) portraitWrap.appendChild(speaker);
     positionDialogue(scene);
   });
 
@@ -2788,21 +2793,8 @@ if(themePanelsEl){
   function fitDialogueSingleLine(scene){
     requestAnimationFrame(()=>{
       const textBox=scene.querySelector('.dialogue-text');
-      const box=scene.querySelector('.dialogue-box');
-      if(!textBox||!box) return;
+      if(!textBox) return;
       textBox.style.removeProperty('font-size');
-      const sceneWidth=scene.getBoundingClientRect().width;
-      const iconAllowance=box.dataset.role==='jintong' ? 42 : 0;
-      const available=Math.max(260,sceneWidth-70-iconAllowance);
-      const natural=textBox.scrollWidth;
-      if(natural<=available) return;
-      const css=getComputedStyle(textBox);
-      const fontSize=parseFloat(css.fontSize)||16;
-      const padding=(parseFloat(css.paddingLeft)||0)+(parseFloat(css.paddingRight)||0);
-      const contentWidth=Math.max(1,natural-padding);
-      const ratio=Math.max(.48,(available-padding)/contentWidth);
-      const minimum=innerWidth<=820 ? 8 : 10;
-      textBox.style.setProperty('font-size',`${Math.max(minimum,fontSize*ratio)}px`,'important');
     });
   }
 
@@ -2942,6 +2934,20 @@ if(themePanelsEl){
     huozhongResetObserver.observe(scenes[2]);
   }
 
+  // 離開告非室便清除閱讀進度；再次回到此幕時一定從第一句開始。
+  if(scenes[3]){
+    const gaofeishiResetObserver=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.target===scenes[3] && (!entry.isIntersecting || entry.intersectionRatio<.18)){
+          state[3].line=0;
+          if(observedDialogueIndex===3) observedDialogueIndex=-1;
+          scenes[3].classList.remove('dialogue-complete');
+        }
+      });
+    },{threshold:[0,.18,.35]});
+    gaofeishiResetObserver.observe(scenes[3]);
+  }
+
   // 首頁 SCROLL 可直接觸發 01→02 的同一套柔順轉場。
   const introScrollHint=document.querySelector('.intro .scrollhint');
   if(introScrollHint){
@@ -2957,6 +2963,7 @@ if(themePanelsEl){
   // v0.29：首頁與四幕故事都能用滑鼠滾輪平滑切換，尚未讀完的對話也可直接略過。
   const introScene=document.querySelector('.intro');
   const themesSection=document.querySelector('#themes');
+  const formSection=document.querySelector('#form');
   const wheelStops=[introScene,...scenes].filter(Boolean);
   let storyWheelLocked=false;
   let storyWheelAmount=0;
@@ -3004,6 +3011,26 @@ if(themePanelsEl){
   window.addEventListener('wheel',e=>{
     if(Math.abs(e.deltaY)<=Math.abs(e.deltaX) || Math.abs(e.deltaY)<2) return;
     if(document.querySelector('.detail.open,.profile-page.open,.reservation-confirmation.open')) return;
+    const formRect=formSection?.getBoundingClientRect();
+    if(e.deltaY<0 && formRect && formRect.top<innerHeight*.55 && formRect.bottom>innerHeight*.45){
+      e.preventDefault();
+      if(storyWheelLocked || storyScrollFrame) return;
+      storyWheelLocked=true;
+      smoothStoryScroll(themesSection,1050);
+      window.setTimeout(()=>{storyWheelLocked=false;},1260);
+      return;
+    }
+    const themesRect=themesSection?.getBoundingClientRect();
+    if(e.deltaY<0 && themesRect && themesRect.top<innerHeight*.82 && themesRect.bottom>innerHeight*.18){
+      e.preventDefault();
+      if(storyWheelLocked || storyScrollFrame) return;
+      activeIndex=Math.max(0,scenes.length-1);
+      setActiveDialogue();
+      storyWheelLocked=true;
+      smoothStoryScroll(scenes[scenes.length-1],1050);
+      window.setTimeout(()=>{storyWheelLocked=false;},1260);
+      return;
+    }
     const storyRect=document.querySelector('#story')?.getBoundingClientRect();
     const insideStory=!!storyRect && storyRect.top<innerHeight*.62 && storyRect.bottom>innerHeight*.38;
     if(!insideStory) return;
@@ -3312,11 +3339,11 @@ if(themePanelsEl){
   if(!C) return;
   const order=['people','wealth','family','work','health','love','dream','self'];
   const specs={
-people:{num:'01',title:'人際百鬼記',color:'#f3efe5',scroll:'assets/release/scroll-01.png',img:'assets/release/baize-v2.png',detailArt:'assets/release/detail-01-baize-empty.webp'},
-wealth:{num:'02',title:'財富堆金記',color:'#b42e34',scroll:'assets/release/scroll-02.png',img:'assets/release/pixiu-v2.png',detailArt:'assets/release/detail-02-pixiu-empty.webp'},
-family:{num:'03',title:'家族聊齋記',color:'#dc713d',scroll:'assets/release/scroll-03.png',img:'assets/release/qilin-v2.png',detailArt:'assets/release/detail-03-qilin-empty.webp'},
-work:{num:'04',title:'職場降魔記',color:'#d8ab35',scroll:'assets/release/scroll-04.png',img:'assets/release/xiezhi-v2.png',detailArt:'assets/release/detail-04-xiezhi-empty.webp'},
-health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/scroll-05.png',img:'assets/release/deer-v2.png',detailArt:'assets/release/detail-05-deer-empty.webp'},
+people:{num:'01',title:'人際百鬼記',color:'#f3efe5',scroll:'assets/release/scroll-01.png',img:'assets/release/baize-v2.png',detailArt:'assets/release/detail-01-baize-empty.webp',mobileDetailArt:'assets/release/detail-mobile-01-baize.webp'},
+wealth:{num:'02',title:'財富堆金記',color:'#b42e34',scroll:'assets/release/scroll-02.png',img:'assets/release/pixiu-v2.png',detailArt:'assets/release/detail-02-pixiu-empty.webp',mobileDetailArt:'assets/release/detail-mobile-02-pixiu.webp',locked:false},
+family:{num:'03',title:'家族聊齋記',color:'#dc713d',scroll:'assets/release/scroll-03.png',img:'assets/release/qilin-v2.png',detailArt:'assets/release/detail-03-qilin-empty.webp',mobileDetailArt:'assets/release/detail-mobile-03-qilin.webp'},
+work:{num:'04',title:'職場降魔記',color:'#d8ab35',scroll:'assets/release/scroll-04.png',img:'assets/release/xiezhi-v2.png',detailArt:'assets/release/detail-04-xiezhi-empty.webp',mobileDetailArt:'assets/release/detail-mobile-04-xiezhi.webp'},
+health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/scroll-05.png',img:'assets/release/deer-v2.png',detailArt:'assets/release/detail-05-deer-empty.webp',mobileDetailArt:'assets/release/detail-mobile-05-deer.webp'},
     love:{num:'06',title:'戀愛七擒記',color:'#c87894',scroll:'assets/release/scroll-06-locked.png',locked:true},
     dream:{num:'07',title:'夢想桃源記',color:'#485a98',scroll:'assets/release/scroll-07-locked.png',locked:true},
     self:{num:'08',title:'自我煉丹記',color:'#76518e',scroll:'assets/release/scroll-08-locked.png',locked:true}
@@ -3330,7 +3357,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   const profileImg=document.querySelector('.profile-character img');
   if(profileImg){profileImg.src='assets/release/jintong-1.webp';profileImg.alt='金童立繪'}
   const profileTitle=document.querySelector('.profile-copy h2');
-  if(profileTitle) profileTitle.innerHTML='這間房間的主人，<br>也在收集故事。';
+  if(profileTitle) profileTitle.textContent='將將將將!';
   const selectedMap={people:'01 人際百鬼記',wealth:'02 財富堆金記',family:'03 家族聊齋記',work:'04 職場降魔記',health:'05 健康搜神記'};
   document.querySelector('#detailPortal')?.addEventListener('click',()=>{
     const id=document.querySelector('#detail')?.dataset.selected;
@@ -3369,6 +3396,355 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
       finally{submit.disabled=false;submit.textContent='送出預約'}
     });
   }
+})();
+</script>
+
+<style id="v032-mobile-layout">
+/* v0.32 — 手機側欄、八記卷軸與一致的對話排版。 */
+.dialogue-box[data-role="jintong"] .dialogue-speaker{
+  display:flex!important;
+  visibility:visible!important;
+  position:absolute!important;
+  left:50%!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:-20px!important;
+  width:max-content!important;
+  min-width:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:3px 9px!important;
+  transform:translateX(-50%)!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:1px solid rgba(222,177,96,.42)!important;
+  border-radius:999px!important;
+  background:rgba(18,13,9,.72)!important;
+}
+.dialogue-box[data-role="jintong"] .dialogue-name{
+  display:block!important;
+  visibility:visible!important;
+  color:#f2cf8d!important;
+  font-size:13px!important;
+  font-weight:700!important;
+  line-height:1.25!important;
+  letter-spacing:.16em!important;
+  text-shadow:0 1px 4px rgba(0,0,0,.8)!important;
+}
+.dialogue-text{
+  width:min(780px,calc(100vw - 180px))!important;
+  max-width:100%!important;
+  padding:4px 36px!important;
+  font-size:16px!important;
+  line-height:1.55!important;
+  white-space:normal!important;
+  text-wrap:balance!important;
+}
+
+@media(max-width:900px){
+  body{--nav:48px}
+  .side{
+    position:fixed!important;
+    z-index:200!important;
+    inset:0 auto 0 0!important;
+    width:48px!important;
+    padding-top:58px!important;
+    box-sizing:border-box!important;
+    overflow:visible!important;
+  }
+  .hamb{
+    position:fixed!important;
+    z-index:190!important;
+    left:6px!important;
+    top:8px!important;
+    width:40px!important;
+    height:40px!important;
+    margin:0!important;
+    pointer-events:auto!important;
+    border-color:rgba(216,188,127,.5)!important;
+    background:rgba(16,22,20,.92)!important;
+    box-shadow:0 6px 18px rgba(0,0,0,.28)!important;
+    backdrop-filter:blur(8px)!important;
+    transform:none!important;
+  }
+  body.menu-collapsed{--nav:0px!important}
+  body.menu-collapsed .side{
+    width:0!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    pointer-events:none!important;
+  }
+  body.menu-collapsed .hamb{
+    left:8px!important;
+    transform:none!important;
+    pointer-events:auto!important;
+  }
+
+  .theme-header{padding:68px 18px 18px!important}
+  .theme-panels{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:12px 6px!important;
+    width:calc(100% - 18px)!important;
+    max-width:320px!important;
+    height:auto!important;
+    min-height:0!important;
+    margin:0 auto!important;
+    padding:14px 0 30px!important;
+    align-items:start!important;
+    overflow:visible!important;
+    content-visibility:visible!important;
+    contain:none!important;
+  }
+  .theme{
+    grid-column:span 2!important;
+    display:block!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:190/795!important;
+    margin:0!important;
+    border:0!important;
+    overflow:visible!important;
+    contain:none!important;
+  }
+  .theme:nth-child(7){grid-column:2/span 2!important}
+  .theme-landscape{display:none!important}
+  .theme .book-shell,
+  .theme:hover .book-shell{
+    inset:0!important;
+    transform:scale(.94)!important;
+    filter:drop-shadow(0 10px 10px rgba(0,0,0,.38))!important;
+  }
+  .theme .book-shell img{width:100%!important;height:100%!important;object-fit:contain!important}
+
+  #detail{
+    inset:0 0 0 var(--nav)!important;
+    display:flex!important;
+    align-items:flex-start!important;
+    justify-content:center!important;
+    padding:64px 8px 18px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+    background:#101513!important;
+  }
+  #detail .opened-scroll{
+    width:min(calc(100% - 2px),390px)!important;
+    max-width:390px!important;
+    min-height:0!important;
+    height:auto!important;
+    max-height:none!important;
+    aspect-ratio:390/680!important;
+    margin:0 auto!important;
+    flex:0 0 auto!important;
+    transform:none!important;
+    background-size:contain!important;
+    background-position:center top!important;
+  }
+  #detail .detail-hero{
+    left:50%!important;
+    top:51.5%!important;
+    transform:translate(-50%,-50%)!important;
+  }
+  #detail .detail-portal{width:44cqw!important;height:44cqw!important}
+  #detail[data-selected="people"] .detail-portal{width:46cqw!important;height:46cqw!important}
+  #detail[data-selected="family"] .detail-portal{width:52cqw!important;height:38cqw!important}
+  #detail[data-selected="work"] .detail-portal{width:47cqw!important;height:47cqw!important}
+  #detail[data-selected="health"] .detail-portal{width:43cqw!important;height:49cqw!important}
+  #detail .detail-portal .detail-beast{
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center!important;
+  }
+  #detail .detail-copy{top:73%!important;width:78%!important}
+  #detail .detail-copy .beastname{font-size:15px!important;letter-spacing:.2em!important}
+  #detail .detail-copy p{margin-top:8px!important;font-size:12px!important;line-height:1.6!important}
+
+  .dialogue-box[data-role="jintong"] .dialogue-speaker{
+    bottom:-17px!important;
+    margin:0!important;
+    padding:2px 7px!important;
+  }
+  .dialogue-box[data-role="jintong"] .dialogue-name{font-size:11px!important}
+  .dialogue-text{
+    width:100%!important;
+    max-width:100%!important;
+    padding:3px 10px!important;
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:4px!important;
+    overflow:visible!important;
+    white-space:nowrap!important;
+    text-wrap:nowrap!important;
+      font-size:10.5px!important;
+    line-height:1.35!important;
+  }
+  .dialogue-copy-text{display:inline-block!important;white-space:nowrap!important;flex:0 1 auto!important}
+  .dialogue-click-icon{display:inline-block!important;flex:0 0 auto!important;margin-left:2px!important}
+}
+</style>
+
+<style id="v033-dialogue-profile-locks">
+/* 電腦版：頭像放大至 110%，並跟著台詞實際寬度貼齊左側。 */
+@media(min-width:901px){
+  .dialogue-layer,
+  .dialogue-box,
+  .dialogue-content,
+  .dialogue-text{
+    width:fit-content!important;
+  }
+  .dialogue-text{
+    max-width:min(900px,80vw)!important;
+    letter-spacing:.065em!important;
+  }
+  .dialogue-box[data-role="jintong"]{--jt-icon:clamp(73px,7.92vw,92px)!important}
+  .dialogue-box[data-role="jintong"] .dialogue-portrait-wrap{
+    left:auto!important;
+    right:calc(100% - 25px)!important;
+    top:50%!important;
+    bottom:auto!important;
+    width:var(--jt-icon)!important;
+    height:var(--jt-icon)!important;
+    transform:translateY(-50%)!important;
+  }
+  .dialogue-box[data-role="jintong"] .dialogue-portrait{
+    transform:none!important;
+  }
+  .dialogue-box[data-role="jintong"] .dialogue-speaker{
+    left:50%!important;
+    right:auto!important;
+    width:max-content!important;
+    transform:translateX(-50%)!important;
+  }
+}
+
+.mobile-dialogue-break{display:none}
+
+/* 所有台詞都以頁面中央為共同基準。 */
+.dialogue-layer{
+  left:50%!important;
+  right:auto!important;
+  transform:translateX(-50%)!important;
+  justify-content:center!important;
+}
+.dialogue-box,
+.dialogue-content,
+.dialogue-text{
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+  justify-content:center!important;
+}
+
+/* 使用指定箭頭圖，以遮罩改為金色並慢速上下漂浮。 */
+.dialogue-click-icon{
+  display:inline-block!important;
+  width:45px!important;
+  height:55px!important;
+  min-width:45px!important;
+  margin-left:9px!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+  vertical-align:middle!important;
+  background:none!important;
+  -webkit-mask:none!important;
+  mask:none!important;
+  filter:drop-shadow(0 1px 4px rgba(242,183,55,.48))!important;
+  animation:none!important;
+}
+.dialogue-click-icon img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  filter:brightness(0) saturate(100%) invert(79%) sepia(82%) saturate(707%) hue-rotate(344deg) brightness(99%) contrast(89%)!important;
+  animation:dialogueArrowImageFloat 3.2s ease-in-out infinite!important;
+}
+.dialogue-click-icon::before,
+.dialogue-click-icon::after{
+  content:none!important;
+  display:none!important;
+}
+@keyframes dialogueArrowImageFloat{
+  0%,100%{transform:translateY(-6px)}
+  50%{transform:translateY(6px)}
+}
+
+/* 封印卷完全不接受點擊。 */
+.theme.locked,
+.theme.locked:disabled{
+  pointer-events:none!important;
+  cursor:not-allowed!important;
+}
+
+/* 手機版：頭像在台詞上方，角色名位於頭像右側。 */
+@media(max-width:900px){
+  .dialogue-text{
+    font-size:10.25px!important;
+    letter-spacing:.065em!important;
+  }
+  .dialogue-box[data-role="jintong"] .dialogue-portrait-wrap{
+    left:50%!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:calc(100% + 5px)!important;
+    width:72px!important;
+    height:72px!important;
+    transform:translateX(-50%)!important;
+  }
+  .dialogue-box[data-role="jintong"] .dialogue-speaker{
+    left:calc(100% - 5px)!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:0!important;
+    width:max-content!important;
+    transform:none!important;
+    padding:2px 7px!important;
+  }
+  .story-scene[data-dialogue-page="4"] .dialogue-layer{
+    top:calc(var(--dialogue-top) + 52px)!important;
+  }
+  .story-scene[data-dialogue-page="2"] .dialogue-layer,
+  .story-scene[data-dialogue-page="3"] .dialogue-layer{
+    transform:translate(-50%,-10px)!important;
+  }
+  .story-scene[data-dialogue-page="4"] .mobile-dialogue-break{
+    display:block!important;
+  }
+}
+</style>
+
+<script id="v032-mobile-menu">
+(function(){
+  const mq=window.matchMedia('(max-width:900px)');
+  const button=document.querySelector('.hamb');
+  if(!button) return;
+  function syncButton(){
+    const collapsed=document.body.classList.contains('menu-collapsed');
+    button.textContent='≡';
+    button.setAttribute('aria-expanded',String(!collapsed));
+    button.setAttribute('aria-label',collapsed?'展開選單':'收起選單');
+    button.setAttribute('title',collapsed?'展開選單':'收起選單');
+  }
+  if(mq.matches) document.body.classList.add('menu-collapsed');
+  syncButton();
+  button.addEventListener('click',()=>requestAnimationFrame(syncButton));
+  document.querySelectorAll('.navbtn').forEach(item=>item.addEventListener('click',()=>{
+    if(!mq.matches) return;
+    document.body.classList.add('menu-collapsed');
+    syncButton();
+  }));
+  mq.addEventListener?.('change',event=>{
+    if(event.matches) document.body.classList.add('menu-collapsed');
+    else document.body.classList.remove('menu-collapsed');
+    syncButton();
+  });
 })();
 </script>
 
