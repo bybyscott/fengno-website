@@ -3429,7 +3429,12 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
       submit.disabled=true;submit.textContent='正在送出…';message.textContent='正在把訊息送進告非室…';
       const payload=new FormData();
       Object.entries(config.entries).forEach(([key,entry])=>{
-        if(entry && form.elements[key]) payload.append(entry,form.elements[key].value);
+        if(!entry || !form.elements[key]) return;
+        let value=form.elements[key].value;
+        if(key==='trouble' && !config.entries.attendees && form.elements.attendees){
+          value=`參加人數：${form.elements.attendees.value} 人\n${value}`;
+        }
+        payload.append(entry,value);
       });
       try{
         if(!isLocalPreview) await fetch(config.action,{method:'POST',mode:'no-cors',body:payload});
