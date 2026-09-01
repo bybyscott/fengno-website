@@ -2219,7 +2219,7 @@ body.menu-collapsed .brand-vert{
         <h1 id="hookTitle"></h1>
         <p id="hookBody"></p>
       </div>
-      <div class="scrollhint">SCROLL</div>
+      <button class="scrollhint" type="button" aria-label="前往序章"><span class="scrollhint-label">SCROLL</span><span class="scrollhint-mobile-arrow" aria-hidden="true">↓</span></button>
     </section>
 
     <section class="story-scene" data-story>
@@ -2245,7 +2245,9 @@ body.menu-collapsed .brand-vert{
       <div><div class="kicker">BOOKS / 八 記</div><h2>你的煩惱，靠近哪一卷？</h2></div>
       <p>八卷皆以封卷形式陳列；點擊卷軸，展開該卷的簡介與守卷神獸。</p>
     </header>
-    <div class="theme-panels"></div>
+    <div class="theme-carousel-viewport">
+      <div class="theme-panels"></div>
+    </div>
   </section>
 
   <section class="form-preview" id="form">
@@ -2507,6 +2509,7 @@ function renderDetail(id,shouldOpen=true){
   if(shouldOpen){
     q('.detail').classList.add('open');
     q('.detail').setAttribute('aria-hidden','false');
+    if(window.matchMedia('(max-width:900px)').matches) document.documentElement.classList.add('detail-mobile-open');
   }
   window.dispatchEvent(new CustomEvent('feng:detail-rendered',{detail:{id:t.id}}));
 }
@@ -2520,6 +2523,7 @@ function closeDetail(){
   clearTimeout(detailOpenTimer);
   q('.detail').classList.remove('open');
   q('.detail').setAttribute('aria-hidden','true');
+  document.documentElement.classList.remove('detail-mobile-open');
 }
 
 panels.addEventListener('click',e=>{
@@ -2530,7 +2534,9 @@ panels.addEventListener('click',e=>{
 // 展卷後：只有神獸／「我要填寫」按鈕會進入表單，其餘區域都返回八記。
 function returnToThemes(){
   closeDetail();
-  q('#themes')?.scrollIntoView({behavior:'smooth',block:'start'});
+  if(!window.matchMedia('(max-width:900px)').matches){
+    q('#themes')?.scrollIntoView({behavior:'smooth',block:'start'});
+  }
 }
 q('#detail').addEventListener('click',e=>{
   if(e.target.closest('#detailPortal')) return;
@@ -4178,6 +4184,9 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     suppressClickUntil=Date.now()+450;
     moveTo(dx<0?1:-1);
   },{passive:true});
+  card.addEventListener('touchmove',event=>{
+    if(touchStart && window.matchMedia('(max-width:900px)').matches) event.preventDefault();
+  },{passive:false});
   card.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
   detail.addEventListener('click',event=>{
     if(Date.now()<suppressClickUntil){event.preventDefault();event.stopPropagation()}
@@ -4254,6 +4263,364 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   }
 }
 </style>
+
+<style id="v042-mobile-detail-lock-and-intro-arrow">
+.intro .scrollhint{border:0;background:transparent;padding:0;font-family:inherit}
+.scrollhint-mobile-arrow{display:none}
+
+@media(max-width:900px){
+  html.detail-mobile-open,
+  html.detail-mobile-open body{
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+  }
+
+  #detail{
+    height:100dvh!important;
+    max-height:100dvh!important;
+    padding:56px 8px 12px!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    touch-action:none!important;
+  }
+  #detail .opened-scroll{
+    width:min(calc(100% - 2px),390px,calc(57.35dvh - 39px))!important;
+    max-height:calc(100dvh - 68px)!important;
+    margin:0 auto!important;
+    overflow:hidden!important;
+    overscroll-behavior:none!important;
+    touch-action:none!important;
+  }
+
+  /* 半透明圓形底讓左右箭頭更像可按按鈕。 */
+  #detail .detail-nav{
+    border:1px solid rgba(146,105,43,.42)!important;
+    border-radius:50%!important;
+    background:rgba(255,248,231,.62)!important;
+    box-shadow:0 3px 12px rgba(91,59,22,.18),inset 0 1px 0 rgba(255,255,255,.72)!important;
+    backdrop-filter:blur(2px)!important;
+  }
+
+  /* 手機首頁改為可點擊的向下箭頭，延續原本上下晃動節奏。 */
+  .intro .scrollhint{
+    display:grid!important;
+    place-items:center!important;
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    min-height:46px!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.52)!important;
+    border-radius:50%!important;
+    background:rgba(9,14,13,.32)!important;
+    box-shadow:0 6px 20px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.12)!important;
+    animation:introMobileArrowFloat 2.4s ease-in-out infinite!important;
+  }
+  .intro .scrollhint-label{display:none!important}
+  .intro .scrollhint-mobile-arrow{
+    display:block!important;
+    color:#fff!important;
+    font-size:24px!important;
+    line-height:1!important;
+    transform:translateY(-1px)!important;
+  }
+  .intro .scrollhint::after{content:none!important;display:none!important}
+}
+
+@keyframes introMobileArrowFloat{
+  0%,100%{transform:translate(-50%,-4px)}
+  50%{transform:translate(-50%,6px)}
+}
+
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .intro .scrollhint{animation:none!important}
+}
+</style>
+
+<style id="v043-mobile-scroll-carousel">
+/* v0.43 — 手機首頁最高層箭頭／八記黑底循環橫向輪播 */
+.theme-carousel-viewport{display:contents}
+
+@media(max-width:900px){
+  /* 箭頭移至 body 後不再受首頁疊層限制，確保整個圓形都能點擊。 */
+  .scrollhint.home-arrow-floating{
+    position:fixed!important;
+    z-index:2147483000!important;
+    left:50%!important;
+    right:auto!important;
+    bottom:24px!important;
+    display:grid!important;
+    place-items:center!important;
+    width:46px!important;
+    height:46px!important;
+    min-width:46px!important;
+    min-height:46px!important;
+    padding:0!important;
+    border:1px solid rgba(255,255,255,.58)!important;
+    border-radius:50%!important;
+    background:rgba(9,14,13,.62)!important;
+    box-shadow:0 8px 26px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.14)!important;
+    pointer-events:auto!important;
+    touch-action:manipulation!important;
+    cursor:pointer!important;
+    opacity:0!important;
+    visibility:hidden!important;
+    transition:opacity .25s ease,visibility .25s ease!important;
+    animation:introMobileArrowFloat 2.4s ease-in-out infinite!important;
+  }
+  .scrollhint.home-arrow-floating.is-visible{opacity:1!important;visibility:visible!important}
+  .scrollhint.home-arrow-floating .scrollhint-label{display:none!important}
+  .scrollhint.home-arrow-floating .scrollhint-mobile-arrow{
+    display:block!important;
+    color:#fff!important;
+    font-size:24px!important;
+    line-height:1!important;
+    transform:translateY(-1px)!important;
+  }
+  .scrollhint.home-arrow-floating::after{content:none!important;display:none!important}
+
+  #themes,
+  #themes .theme-header,
+  #themes .theme-carousel-viewport,
+  #themes .theme-panels{
+    background:#000!important;
+  }
+  #themes{min-height:100dvh!important;overflow:hidden!important}
+  #themes .theme-header{
+    position:relative!important;
+    z-index:5!important;
+    border-bottom:1px solid rgba(216,188,127,.18)!important;
+  }
+  #themes .theme-carousel-viewport{
+    display:block!important;
+    position:relative!important;
+    width:100%!important;
+    height:clamp(440px,68dvh,610px)!important;
+    overflow:hidden!important;
+    touch-action:pan-y!important;
+    overscroll-behavior-x:contain!important;
+  }
+  #themes .theme-panels{
+    position:relative!important;
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    height:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    contain:none!important;
+    content-visibility:visible!important;
+    isolation:isolate!important;
+  }
+  #themes .theme{
+    --carousel-x:0px;
+    --carousel-scale:.72;
+    --carousel-opacity:0;
+    position:absolute!important;
+    left:50%!important;
+    top:50%!important;
+    grid-column:auto!important;
+    display:block!important;
+    width:clamp(104px,29vw,126px)!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:190/795!important;
+    margin:0!important;
+    border:0!important;
+    overflow:visible!important;
+    contain:none!important;
+    opacity:var(--carousel-opacity)!important;
+    transform:translate3d(calc(-50% + var(--carousel-x)),-50%,0) scale(var(--carousel-scale))!important;
+    transform-origin:center!important;
+    transition:transform .72s cubic-bezier(.22,.8,.22,1),opacity .52s ease,filter .52s ease!important;
+    will-change:transform,opacity!important;
+    filter:brightness(.66) saturate(.72)!important;
+    pointer-events:none!important;
+  }
+  #themes .theme.is-carousel-near,
+  #themes .theme.is-carousel-active{pointer-events:auto!important}
+  #themes .theme.is-carousel-active{
+    filter:brightness(1) saturate(1)!important;
+  }
+  #themes .theme:nth-child(7){grid-column:auto!important}
+  #themes .theme::before,
+  #themes .theme::after,
+  #themes .theme-landscape{display:none!important}
+  #themes .theme .book-shell,
+  #themes .theme:hover .book-shell{
+    inset:0!important;
+    transform:scale(.98)!important;
+    filter:drop-shadow(0 18px 18px rgba(0,0,0,.68))!important;
+    transition:filter .4s ease!important;
+  }
+  #themes .theme.is-carousel-active .book-shell{
+    filter:drop-shadow(0 22px 24px rgba(0,0,0,.78))!important;
+  }
+  #themes .theme .book-shell img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+  }
+}
+
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .scrollhint.home-arrow-floating{animation:none!important}
+  #themes .theme{transition:opacity .2s ease!important}
+}
+</style>
+
+<script id="v043-mobile-scroll-carousel-script">
+(function(){
+  const mobile=window.matchMedia('(max-width:900px)');
+  const intro=document.querySelector('.intro');
+  const hint=document.querySelector('.intro .scrollhint');
+  const hintMarker=hint ? document.createComment('intro-scrollhint-home') : null;
+  let hintObserver=null;
+
+  function syncHomeArrow(){
+    if(!hint || !hintMarker) return;
+    if(!hintMarker.parentNode && hint.parentNode) hint.parentNode.insertBefore(hintMarker,hint);
+    if(mobile.matches){
+      if(hint.parentNode!==document.body) document.body.appendChild(hint);
+      hint.classList.add('home-arrow-floating');
+      if(!hintObserver && intro){
+        hintObserver=new IntersectionObserver(entries=>{
+          const visible=entries.some(entry=>entry.isIntersecting && entry.intersectionRatio>.16);
+          hint.classList.toggle('is-visible',visible);
+        },{threshold:[0,.16,.35]});
+        hintObserver.observe(intro);
+      }
+    }else{
+      hintObserver?.disconnect();
+      hintObserver=null;
+      hint.classList.remove('home-arrow-floating','is-visible');
+      if(hintMarker.parentNode) hintMarker.parentNode.insertBefore(hint,hintMarker.nextSibling);
+    }
+  }
+
+  const viewport=document.querySelector('.theme-carousel-viewport');
+  const panels=document.querySelector('.theme-panels');
+  const cards=panels ? Array.from(panels.querySelectorAll('.theme')) : [];
+  let active=0;
+  let autoplay=0;
+  let resumeTimer=0;
+  let touchStart=null;
+  let visible=false;
+
+  function circularOffset(index){
+    const total=cards.length;
+    let offset=(index-active+total)%total;
+    if(offset>total/2) offset-=total;
+    return offset;
+  }
+
+  function paintCarousel(){
+    if(!mobile.matches || !cards.length) return;
+    const step=Math.min(136,window.innerWidth*.345);
+    cards.forEach((card,index)=>{
+      const offset=circularOffset(index);
+      const distance=Math.abs(offset);
+      const scale=distance===0 ? 1 : distance===1 ? .82 : distance===2 ? .67 : .56;
+      const opacity=distance===0 ? 1 : distance===1 ? .56 : distance===2 ? .17 : 0;
+      card.style.setProperty('--carousel-x',`${offset*step}px`);
+      card.style.setProperty('--carousel-scale',String(scale));
+      card.style.setProperty('--carousel-opacity',String(opacity));
+      card.style.zIndex=String(20-distance);
+      card.classList.toggle('is-carousel-active',distance===0);
+      card.classList.toggle('is-carousel-near',distance===1);
+      card.setAttribute('aria-current',distance===0?'true':'false');
+      if(!card.disabled) card.tabIndex=distance===0?0:-1;
+    });
+  }
+
+  function moveCarousel(direction,userInitiated=false){
+    if(!mobile.matches || !cards.length) return;
+    active=(active+direction+cards.length)%cards.length;
+    paintCarousel();
+    if(userInitiated){
+      window.clearInterval(autoplay);
+      window.clearTimeout(resumeTimer);
+      resumeTimer=window.setTimeout(startAutoplay,4800);
+    }
+  }
+
+  function startAutoplay(){
+    window.clearInterval(autoplay);
+    const detailOpen=document.querySelector('#detail')?.classList.contains('open');
+    if(!mobile.matches || !visible || detailOpen || document.hidden) return;
+    autoplay=window.setInterval(()=>moveCarousel(1,false),3000);
+  }
+
+  function stopAutoplay(){window.clearInterval(autoplay)}
+
+  if(viewport && cards.length){
+    viewport.addEventListener('touchstart',event=>{
+      const touch=event.changedTouches[0];
+      touchStart={x:touch.clientX,y:touch.clientY};
+      stopAutoplay();
+    },{passive:true});
+    viewport.addEventListener('touchend',event=>{
+      if(!touchStart) return;
+      const touch=event.changedTouches[0];
+      const dx=touch.clientX-touchStart.x;
+      const dy=touch.clientY-touchStart.y;
+      touchStart=null;
+      if(Math.abs(dx)>42 && Math.abs(dx)>Math.abs(dy)*1.15){
+        moveCarousel(dx<0?1:-1,true);
+      }else{
+        window.clearTimeout(resumeTimer);
+        resumeTimer=window.setTimeout(startAutoplay,2200);
+      }
+    },{passive:true});
+
+    panels.addEventListener('click',event=>{
+      const card=event.target.closest('.theme');
+      if(!mobile.matches || !card || card.classList.contains('is-carousel-active')) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const next=cards.indexOf(card);
+      if(next<0) return;
+      const forward=(next-active+cards.length)%cards.length;
+      const backward=(active-next+cards.length)%cards.length;
+      moveCarousel(forward<=backward?forward:-backward,true);
+    },true);
+
+    const themeObserver=new IntersectionObserver(entries=>{
+      visible=entries.some(entry=>entry.isIntersecting && entry.intersectionRatio>.28);
+      visible?startAutoplay():stopAutoplay();
+    },{threshold:[0,.28,.55]});
+    themeObserver.observe(viewport);
+
+    new MutationObserver(()=>{
+      document.querySelector('#detail')?.classList.contains('open') ? stopAutoplay() : startAutoplay();
+    }).observe(document.querySelector('#detail'),{attributes:true,attributeFilter:['class']});
+  }
+
+  function syncMode(){
+    syncHomeArrow();
+    if(mobile.matches){paintCarousel();startAutoplay()}
+    else{
+      stopAutoplay();
+      cards.forEach(card=>{
+        card.style.removeProperty('--carousel-x');
+        card.style.removeProperty('--carousel-scale');
+        card.style.removeProperty('--carousel-opacity');
+        card.style.removeProperty('z-index');
+        card.classList.remove('is-carousel-active','is-carousel-near');
+        card.removeAttribute('aria-current');
+        if(!card.disabled) card.removeAttribute('tabindex');
+      });
+    }
+  }
+
+  document.addEventListener('visibilitychange',()=>document.hidden?stopAutoplay():startAutoplay());
+  window.addEventListener('resize',paintCarousel,{passive:true});
+  mobile.addEventListener?.('change',syncMode);
+  syncMode();
+})();
+</script>
 
 </body>
 </html>
