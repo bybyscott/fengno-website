@@ -2220,7 +2220,7 @@ body.menu-collapsed .brand-vert{
         <h1 id="hookTitle"></h1>
         <p id="hookBody"></p>
       </div>
-      <button class="scrollhint" type="button" aria-label="前往序章"><span class="scrollhint-label">SCROLL</span><span class="scrollhint-mobile-arrow" aria-hidden="true">↓</span></button>
+      <button class="scrollhint" type="button" aria-label="前往序章"><span class="scrollhint-label"><span class="scrollhint-desktop-label">SCROLL</span><span class="scrollhint-mobile-label">點擊展開對話</span></span><span class="scrollhint-mobile-arrow" aria-hidden="true">↓</span></button>
     </section>
 
     <section class="story-scene" data-story>
@@ -2542,7 +2542,7 @@ panels.addEventListener('click',e=>{
 function returnToThemes(){
   closeDetail();
   if(!window.matchMedia('(max-width:900px)').matches){
-    q('#themes')?.scrollIntoView({behavior:'smooth',block:'start'});
+    q('#themes')?.scrollIntoView({behavior:window.matchMedia('(max-width:900px)').matches?'auto':'smooth',block:'start'});
   }
 }
 q('#detail').addEventListener('click',e=>{
@@ -2613,7 +2613,7 @@ qa('.navbtn').forEach(btn=>btn.addEventListener('click',()=>{
   const id=btn.dataset.target;
   const navigate=()=>{
     if(id==='#story' && window.FENG_DIALOGUE_API){ window.FENG_DIALOGUE_API.reset(); return; }
-    if(id)q(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+    if(id)q(id)?.scrollIntoView({behavior:window.matchMedia('(max-width:900px)').matches?'auto':'smooth',block:'start'});
   };
   if(profilePage?.classList.contains('open')){
     closeProfile();
@@ -2661,7 +2661,7 @@ function closeConfirmationTo(target){
   confirmationPage.classList.remove('open');
   confirmationPage.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
-  setTimeout(()=>q(target).scrollIntoView({behavior:'smooth'}),100);
+  setTimeout(()=>q(target).scrollIntoView({behavior:window.matchMedia('(max-width:900px)').matches?'auto':'smooth'}),100);
 }
 q('#confirmToThemes').addEventListener('click',()=>closeConfirmationTo('#themes'));
 
@@ -2901,7 +2901,7 @@ if(themePanelsEl){
   }
 
   let storyScrollFrame=0;
-  function smoothStoryScroll(target,duration=1050){
+  function smoothStoryScroll(target,duration=1050,allowMobileSmooth=false){
     if(!target) return;
     if(storyScrollFrame) cancelAnimationFrame(storyScrollFrame);
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2910,6 +2910,10 @@ if(themePanelsEl){
     const alignToTop=target.matches?.('#themes');
     const targetY=Math.max(0,startY+rect.top+(alignToTop?0:(rect.height-innerHeight)/2));
     const distance=targetY-startY;
+    if(window.matchMedia('(max-width:900px)').matches && !allowMobileSmooth){
+      window.scrollTo({top:targetY,behavior:'auto'});
+      return;
+    }
     if(Math.abs(distance)<2 || reduceMotion){
       window.scrollTo({top:targetY,behavior:'auto'});
       return;
@@ -2928,7 +2932,7 @@ if(themePanelsEl){
   function goNextSection(index){
     const nextTarget = scenes[index+1] || document.querySelector('#themes');
     if(!nextTarget) return;
-    smoothStoryScroll(nextTarget,1050);
+    smoothStoryScroll(nextTarget,1050,true);
     if(nextTarget.matches && nextTarget.matches('.story-scene')) requestAnimationFrame(()=>nextTarget.classList.add('is-current'));
   }
 
@@ -2937,6 +2941,7 @@ if(themePanelsEl){
     scene.addEventListener('click', (e)=>{
       if(e.target.closest('a,button,input,textarea,label')) return;
       if(i!==activeIndex) return;
+      if(i===0) scene.classList.add('dialogue-hint-dismissed');
       const page=pages[i]; const status=state[i];
       if(status.line < page.lines.length - 1){
         clickSound('soft');
@@ -2959,6 +2964,7 @@ if(themePanelsEl){
     observedDialogueIndex=i;
     activeIndex=i;
     state[i].line=0;
+    if(i===0) scenes[0].classList.remove('dialogue-hint-dismissed');
     if(i===1) setOriginTreasure(false);
     if(i===2) setHuozhongState(false);
     renderPage(i);
@@ -3027,7 +3033,7 @@ if(themePanelsEl){
   if(introScrollHint){
     introScrollHint.setAttribute('role','button');
     introScrollHint.setAttribute('tabindex','0');
-    const enterStory=()=>smoothStoryScroll(scenes[0],1050);
+    const enterStory=()=>smoothStoryScroll(scenes[0],1050,true);
     introScrollHint.addEventListener('click',enterStory);
     introScrollHint.addEventListener('keydown',e=>{
       if(e.key==='Enter' || e.key===' '){e.preventDefault();enterStory();}
@@ -3128,8 +3134,8 @@ if(themePanelsEl){
       state.forEach(s=>{s.line=0;});
       setOriginTreasure(false);
       setHuozhongState(false);
-      scenes.forEach((scene,i)=>{scene.classList.remove('dialogue-complete','current-dialogue');renderPage(i);});
-      document.querySelector('#story')?.scrollIntoView({behavior:'smooth',block:'start'});
+      scenes.forEach((scene,i)=>{scene.classList.remove('dialogue-complete','current-dialogue','dialogue-hint-dismissed');renderPage(i);});
+      document.querySelector('#story')?.scrollIntoView({behavior:window.matchMedia('(max-width:900px)').matches?'auto':'smooth',block:'start'});
     }
   };
 
@@ -3810,7 +3816,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   if(!button) return;
   function syncButton(){
     const collapsed=document.body.classList.contains('menu-collapsed');
-    button.textContent='≡';
+    button.innerHTML='<span class="hamb-icon" aria-hidden="true"></span>';
     button.setAttribute('aria-expanded',String(!collapsed));
     button.setAttribute('aria-label',collapsed?'展開選單':'收起選單');
     button.setAttribute('title',collapsed?'展開選單':'收起選單');
@@ -4506,6 +4512,12 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   const hintMarker=hint ? document.createComment('intro-scrollhint-home') : null;
   let hintObserver=null;
 
+  /* 手機首頁整個畫面皆可進入序章，提示文字仍保留獨立按鈕語意。 */
+  intro?.addEventListener('click',event=>{
+    if(!mobile.matches || event.target.closest('a,button,input,textarea,select,label')) return;
+    hint?.click();
+  });
+
   function syncHomeArrow(){
     if(!hint || !hintMarker) return;
     if(!hintMarker.parentNode && hint.parentNode) hint.parentNode.insertBefore(hintMarker,hint);
@@ -4824,6 +4836,120 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   window.addEventListener('resize',sync,{passive:true});
 })();
 </script>
+
+<style id="v046-mobile-stability-and-dialogue-hint">
+/* 收合時只旋轉圖示，圓形按鈕本身保持固定，並校正視覺中心。 */
+.hamb-icon{
+  position:absolute;
+  left:50%;
+  top:50%;
+  display:block;
+  width:14px;
+  height:2px;
+  border-radius:999px;
+  background:currentColor;
+  box-shadow:0 -5px 0 currentColor,0 5px 0 currentColor;
+  transform:translate(-50%,-50%);
+  transform-origin:center;
+}
+
+/* 序章每句台詞下方的操作提示。 */
+.story-scene[data-dialogue-page="1"] .dialogue-layer::after{
+  content:"點擊展開對話";
+  position:absolute;
+  left:50%;
+  top:calc(100% + 16px);
+  transform:translateX(-50%);
+  color:#fff;
+  font-size:14px;
+  letter-spacing:.28em;
+  line-height:1;
+  white-space:nowrap;
+  text-shadow:0 1px 8px rgba(0,0,0,.72);
+  pointer-events:none;
+  animation:dialogueHintPulse 2.5s ease-in-out infinite;
+}
+
+.scrollhint-mobile-label{display:none}
+@keyframes dialogueHintPulse{
+  0%,100%{opacity:.65}
+  50%{opacity:.25}
+}
+.story-scene[data-dialogue-page="1"].dialogue-hint-dismissed .dialogue-layer::after{
+  content:none!important;
+  display:none!important;
+}
+
+@media(max-width:900px){
+  body.menu-collapsed .hamb-icon{
+    transform:translate(-50%,-50%) rotate(90deg);
+  }
+
+  /* 恢復場景背景向下一幕延伸的柔和交界。 */
+  .story{overscroll-behavior-y:contain!important}
+  .intro + .story-scene,
+  .story-scene + .story-scene{
+    margin-top:-20vh!important;
+  }
+  .intro::after{
+    height:20vh!important;
+    background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.26))!important;
+  }
+  .story-scene,
+  .story-scene:last-of-type{
+    min-height:120svh!important;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 16.667%,#000 100%)!important;
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 16.667%,#000 100%)!important;
+  }
+
+  /* 手機首頁改用文字提示；點擊後才柔順進入序章。 */
+  .scrollhint.home-arrow-floating{
+    width:auto!important;
+    height:auto!important;
+    min-width:0!important;
+    min-height:0!important;
+    padding:10px 14px!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    animation:none!important;
+    bottom:34px!important;
+  }
+  .scrollhint.home-arrow-floating .scrollhint-label{
+    display:block!important;
+    color:#fff!important;
+    font-size:11px!important;
+    letter-spacing:.2em!important;
+    line-height:1!important;
+    text-shadow:0 1px 8px rgba(0,0,0,.72)!important;
+    animation:dialogueHintPulse 2.5s ease-in-out infinite!important;
+  }
+  .scrollhint-desktop-label{display:none!important}
+  .scrollhint-mobile-label{display:inline!important}
+  .scrollhint.home-arrow-floating .scrollhint-mobile-arrow{display:none!important}
+
+  /* 02–04 的角色與台詞一起下移，與故事主圖保留呼吸距離。 */
+  .story-scene[data-dialogue-page="2"] .dialogue-layer,
+  .story-scene[data-dialogue-page="3"] .dialogue-layer{
+    transform:translate(-50%,12px)!important;
+  }
+  .story-scene[data-dialogue-page="4"] .dialogue-layer{
+    top:calc(var(--dialogue-top) + 68px)!important;
+  }
+
+  /* 手機提示移至首頁，序章內不重複顯示。 */
+  .story-scene[data-dialogue-page="1"] .dialogue-layer::after{
+    content:none!important;
+    display:none!important;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .story-scene[data-dialogue-page="1"] .dialogue-layer::after,
+  .scrollhint.home-arrow-floating .scrollhint-label{animation:none!important}
+}
+</style>
 
 </body>
 </html>
