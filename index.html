@@ -2215,6 +2215,7 @@ body.menu-collapsed .brand-vert{
   <main class="story" id="story">
     <section class="intro">
       <div class="intro-copy">
+        <div class="hook-purpose">沉浸式實體交流x專屬式牌卡解讀</div>
         <div class="micro" id="hookMicro"></div>
         <h1 id="hookTitle"></h1>
         <p id="hookBody"></p>
@@ -2325,16 +2326,13 @@ body.menu-collapsed .brand-vert{
         <div class="kicker">關 於 創 作 者</div>
         <h2><span class="profile-title-block"><span>願每一顆心</span><br><span class="profile-title-last">都有能安放的位置</span></span></h2>
         <p>願有一處地方，聆聽靈魂共同綻放。<br><br>
-          參加過引書店的「無所事事小聚」，<br>
-          真實的人們在交流時的氛圍交互影響。<br><br>
           沒有目的的展開，分享著彼此的喜好，<br>
           沒有利益的交換，真心敞開的聆聽與述說。<br><br>
           我會透過主題凝聚，牌卡的深入與看見，<br>
-          讓氣氛有趣活絡，也能沉靜訴說。<br><br>
-          希望能參加聚會的人，都能有一些收穫能帶走，</p>
+          讓氣氛有趣活絡，也能沉靜訴說。</p>
         <div class="profile-ending-row">
           <span class="profile-ending-name">金童</span>
-          <span class="profile-ending-copy">煩惱不屬於個人，人們會讓經驗陪伴你。</span>
+          <span class="profile-ending-copy">希望能參加聚會的人，都能有一些收穫能帶走，<br>煩惱不屬於個人，人們會讓經驗陪伴你。</span>
           <button class="primary" id="profileBack" type="button">回到告非室</button>
         </div>
       </div>
@@ -4747,6 +4745,85 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   }
 }
 </style>
+
+<style id="v045-home-purpose-and-profile-spacing">
+/* 首頁快速說明：沿用金色 icon，字級與 WIND 標示一致。 */
+.intro-copy .hook-purpose{
+  width:max-content;
+  max-width:80vw;
+  margin:0 auto 6px;
+  color:var(--gold);
+  font-size:9px;
+  line-height:1.8;
+  letter-spacing:.08em;
+  text-align:justify;
+  text-align-last:justify;
+}
+.intro-copy .micro{
+  display:table;
+  width:auto;
+  margin-right:auto;
+  margin-left:auto;
+  margin-bottom:var(--intro-section-gap)!important;
+}
+.intro-copy{
+  --intro-section-gap:clamp(24px,3vw,30px);
+}
+.intro-copy #hookTitle{
+  line-height:1.28;
+}
+.intro-copy #hookBody{
+  margin-top:var(--intro-section-gap);
+  letter-spacing:.11em;
+}
+
+/* 個人頁收尾：最後一段保留與前文相同的段落距離，名字、文案與按鈕齊底。 */
+@media(min-width:901px){
+  .profile-ending-row{
+    margin-top:2.15em!important;
+    align-items:flex-end!important;
+  }
+  .profile-ending-name{
+    bottom:0!important;
+  }
+  .profile-ending-copy{
+    align-self:flex-start!important;
+  }
+  #profileBack{
+    align-self:flex-end!important;
+  }
+}
+
+@media(max-width:900px){
+  .intro-copy .hook-purpose{
+    max-width:82vw;
+    margin-right:auto;
+    margin-left:auto;
+    letter-spacing:.08em;
+  }
+  .intro-copy #hookBody{
+    letter-spacing:.075em;
+  }
+  .profile-ending-row{
+    margin-top:2.15em!important;
+  }
+}
+</style>
+
+<script id="v045-hook-width-sync">
+(function(){
+  const purpose=document.querySelector('.hook-purpose');
+  const wind=document.querySelector('#hookMicro');
+  if(!purpose || !wind) return;
+  const sync=()=>{
+    const width=wind.getBoundingClientRect().width;
+    if(width>0) purpose.style.width=`${width}px`;
+  };
+  requestAnimationFrame(sync);
+  document.fonts?.ready?.then(sync);
+  window.addEventListener('resize',sync,{passive:true});
+})();
+</script>
 
 </body>
 </html>
