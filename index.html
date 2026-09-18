@@ -2278,7 +2278,7 @@ if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and
         <p id="serviceLead">映照過去影響、理解當下現況、展開未來樣貌</p>
         <div class="service-meta-row">
           <p class="service-meta" id="serviceMeta" aria-live="polite">60–90 分鐘｜NT$800</p>
-          <button type="button" class="service-register-button">報名填寫</button>
+          <button type="button" class="service-register-button">入室登記</button>
         </div>
       </div>
     </div>
@@ -2300,7 +2300,8 @@ if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and
 
     <div class="service-route" aria-label="解讀項目">
       <svg class="service-route-line" viewBox="0 0 1000 220" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 48 Q250 100 430 182 Q500 214 570 182 Q750 100 1000 48"/>
+        <path class="service-route-base" pathLength="1" d="M0 48 Q250 100 430 182 Q500 214 570 182 Q750 100 1000 48"/>
+        <path class="service-route-flow" pathLength="1" d="M0 48 Q250 100 430 182 Q500 214 570 182 Q750 100 1000 48"/>
       </svg>
       <div class="service-carousel-nodes"></div>
     </div>
@@ -2308,18 +2309,61 @@ if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and
 
   <section class="form-preview" id="form">
     <div class="form-card">
-      <div class="kicker">入 室 登 記</div>
-      <h2>把今天的煩惱帶進來</h2>
-      <p>選一卷，把想說的煩惱交給金童。送出後，我們會依照你留下的方式聯絡。</p>
+      <div class="form-seal" aria-hidden="true"><img src="assets/release/form-stamp-logo.webp" alt=""></div>
+      <header class="form-ritual-head">
+        <div class="kicker">入 室 登 記 · 封 箋</div>
+        <h2>把今天的煩惱帶進來</h2>
+        <p>選一卷，把想說的煩惱交給金童。寫得不必完整，真實就好。</p>
+      </header>
       <form id="reservationForm" novalidate>
-        <div class="field"><label for="reserveTheme">主題 <span aria-hidden="true">＊</span></label><select id="reserveTheme" name="theme" required><option value="">請選擇 1–5 記</option><option>01 人際百鬼記</option><option>02 財富堆金記</option><option>03 家族聊齋記</option><option>04 職場降魔記</option><option>05 健康搜神記</option></select></div>
-        <div class="field"><label for="reserveAttendees">參加人數 <span aria-hidden="true">＊</span></label><select id="reserveAttendees" name="attendees" required><option value="">請選擇參加人數</option><option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人</option><option value="4">4 人</option></select></div>
-        <div class="field"><label for="reserveName">稱呼 <span aria-hidden="true">＊</span></label><input id="reserveName" name="name" autocomplete="name" required placeholder="暱稱即可"></div>
-        <div class="field"><label for="reserveContact">聯絡方式 <span aria-hidden="true">＊</span></label><input id="reserveContact" name="contact" required placeholder="Email、LINE 或其他方便聯絡的方式"></div>
-        <div class="field"><label for="reserveTrouble">想訴說的煩惱 <span aria-hidden="true">＊</span></label><textarea id="reserveTrouble" name="trouble" required placeholder="先寫一句也可以"></textarea></div>
-        <div class="field"><label for="reserveTime">希望聯絡／預約時段 <span aria-hidden="true">＊</span></label><input id="reserveTime" name="time" required placeholder="例如：平日 19:00 後、週六下午"></div>
-        <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
-        <button class="submit" id="submitReservation" type="submit">送出預約</button>
+        <div class="form-ritual-status" aria-live="polite">
+          <span>卷宗完成度</span>
+          <div class="form-gold-thread" aria-hidden="true"><i></i></div>
+          <b id="formProgressText">尚未落筆</b>
+        </div>
+        <div class="form-step-shell">
+          <button class="form-step-arrow form-step-prev" type="button" aria-label="上一類問題"><span aria-hidden="true">‹</span></button>
+          <div class="form-step-viewport">
+            <div class="form-step-track">
+              <section class="form-step is-active" data-form-step="0" aria-label="第一類：卷軸與服務項目">
+                <div class="form-step-kicker">第一類 · 選擇入室方向</div>
+                <div class="form-step-fields form-step-fields-two">
+                  <div class="field"><label for="reserveTheme">選擇卷軸 <span aria-hidden="true">＊</span></label><select id="reserveTheme" name="theme" required><option value="">請選擇 1–5 記</option><option>01 人際百鬼記</option><option>02 財富堆金記</option><option>03 家族聊齋記</option><option>04 職場降魔記</option><option>05 健康搜神記</option></select></div>
+                  <div class="field"><label for="reserveService">服務項目 <span aria-hidden="true">＊</span></label><select id="reserveService" name="service" required><option value="">請選擇服務項目</option><option>牌卡訊息解讀</option><option>水晶礦石解讀</option><option>彩虹數字解讀</option><option>遠距靈氣療癒</option></select></div>
+                </div>
+              </section>
+              <section class="form-step" data-form-step="1" aria-label="第二類：基本聯絡資料" aria-hidden="true">
+                <div class="form-step-kicker">第二類 · 留下聯絡方式</div>
+                <div class="form-step-fields form-step-fields-three">
+                  <div class="field"><label for="reserveAttendees">參加人數 <span aria-hidden="true">＊</span></label><select id="reserveAttendees" name="attendees" required><option value="">請選擇參加人數</option><option value="1">1 人</option><option value="2">2 人</option><option value="3">3 人</option><option value="4">4 人</option></select></div>
+                  <div class="field"><label for="reserveName">暱稱 <span aria-hidden="true">＊</span></label><input id="reserveName" name="name" autocomplete="name" required placeholder="暱稱即可"></div>
+                  <div class="field"><label for="reserveContact">聯絡方式 <span aria-hidden="true">＊</span></label><input id="reserveContact" name="contact" required placeholder="E-mail或LINE ID"></div>
+                </div>
+                <div class="jintong-form-guide" aria-live="polite">
+                  <span class="jintong-form-avatar"><img src="assets/release/jintong-dialogue-smug-v2.webp" alt="金童"></span>
+                  <p>快要填寫完成了，再把想說的話交給我吧。</p>
+                </div>
+              </section>
+              <section class="form-step" data-form-step="2" aria-label="第三類：煩惱與聯絡時段" aria-hidden="true">
+                <div class="form-step-kicker">第三類 · 把此刻的念頭留下來</div>
+                <div class="form-step-fields form-step-fields-final">
+                  <div class="field field-wide"><label for="reserveTrouble">想訴說的煩惱 <span aria-hidden="true">＊</span></label><textarea id="reserveTrouble" name="trouble" required placeholder="先寫一句也可以"></textarea><small class="field-whisper">金童備註｜不用想好答案，先把此刻的念頭留下來。</small></div>
+                  <div class="field field-wide"><label for="reserveTime">希望聯絡／預約時段 <span aria-hidden="true">＊</span></label><input id="reserveTime" name="time" required placeholder="例如：平日 19:00 後、週六下午"></div>
+                  <div class="form-submit-row">
+                    <button class="submit" id="submitReservation" type="submit"><span>封存並交給金童</span><i aria-hidden="true">封</i></button>
+                    <div class="form-message" id="formMessage" role="status" aria-live="polite"></div>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+          <button class="form-step-arrow form-step-next" type="button" aria-label="下一類問題"><span aria-hidden="true">›</span></button>
+        </div>
+        <div class="form-step-dots" aria-label="填寫步驟">
+          <button type="button" class="is-active" data-form-step-dot="0" aria-label="前往第一類問題"></button>
+          <button type="button" data-form-step-dot="1" aria-label="前往第二類問題"></button>
+          <button type="button" data-form-step-dot="2" aria-label="前往第三類問題"></button>
+        </div>
       </form>
     </div>
     <button class="form-home-button" id="formHomeButton" type="button" aria-label="回到首頁" title="回到首頁">
@@ -2342,11 +2386,11 @@ if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and
         <div class="kicker">SELECTED BOOK</div>
       </div>
       <div class="detail-hero">
-        <button class="detail-portal" id="detailPortal" type="button" aria-label="點擊神獸進入填寫煩惱頁">
+        <button class="detail-portal" id="detailPortal" type="button" aria-label="點擊神獸進入入室登記">
           <span class="beast-ring" aria-hidden="true"></span>
           <img id="detailImg" class="detail-beast" alt="">
           <span class="portal-glint" aria-hidden="true"></span>
-          <span class="enter-badge primary" id="enterTheme">我要填寫</span>
+          <span class="enter-badge primary" id="enterTheme"><span>入室</span><span>登記</span></span>
         </button>
       </div>
       <button class="detail-nav detail-nav-prev" id="detailPrev" type="button" aria-label="上一卷">
@@ -2559,12 +2603,15 @@ function renderDetail(id,shouldOpen=true){
   q('#detailDesc').textContent=t.desc;
   q('#detailImg').src=t.img;
   q('#detailImg').alt=t.beast;
-  const portal=q('#detailPortal'); if(portal) portal.setAttribute('aria-label', `${t.title}｜${t.beast}，點擊進入填寫煩惱頁`);
+  const portal=q('#detailPortal'); if(portal) portal.setAttribute('aria-label', `${t.title}｜${t.beast}，點擊進入入室登記`);
   const detailArt=window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse)').matches && t.mobileDetailArt
     ? t.mobileDetailArt
     : (t.detailArt||t.landscape);
   q('.detail').style.setProperty('--detail-bg',`url("${detailArt}")`);
-  q('.detail').style.setProperty('--detail-scene',`url("${t.landscape}")`);
+  const detailScene=t.id==='wealth'
+    ? 'assets/release/detail-blur-wealth-pixiu.png'
+    : t.landscape;
+  q('.detail').style.setProperty('--detail-scene',`url("${detailScene}")`);
   q('.detail').style.setProperty('--beast-mask',`url("${t.img}")`);
   q('.detail').style.setProperty('--detail-tone',t.tone||'#355c52');
   q('.detail').dataset.selected=t.id;
@@ -3497,7 +3544,8 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     action:'https://docs.google.com/forms/u/0/d/e/1FAIpQLSez_rQTMTc8EtIbh03u17QvIsuqQkBU6Hakv5e_Z-8Mp_5QiQ/formResponse',
     entries:{
       theme:'entry.1071648712',
-      attendees:'',
+      service:'entry.251824018',
+      attendees:'entry.1809382968',
       name:'entry.1273557327',
       contact:'entry.1363488455',
       trouble:'entry.697849726',
@@ -3508,7 +3556,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     form.addEventListener('submit',async e=>{
       e.preventDefault();
       message.className='form-message';
-      if(!form.reportValidity()){message.textContent='請先完成所有必填欄位。';return}
+      if(!form.reportValidity()){message.textContent='請先務必完成所有必填欄位。';return}
       const isLocalPreview=location.protocol==='file:' || location.hostname==='127.0.0.1' || location.hostname==='localhost';
       if(!isLocalPreview && !config.action){message.textContent='表單服務正在設定中，請稍後再試。';return}
       submit.disabled=true;submit.textContent='正在送出…';message.textContent='正在把訊息送進告非室…';
@@ -3516,8 +3564,11 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
       Object.entries(config.entries).forEach(([key,entry])=>{
         if(!entry || !form.elements[key]) return;
         let value=form.elements[key].value;
-        if(key==='trouble' && !config.entries.attendees && form.elements.attendees){
-          value=`參加人數：${form.elements.attendees.value} 人\n${value}`;
+        if(key==='trouble'){
+          const context=[];
+          if(!config.entries.service && form.elements.service) context.push(`服務項目：${form.elements.service.value}`);
+          if(!config.entries.attendees && form.elements.attendees) context.push(`參加人數：${form.elements.attendees.value} 人`);
+          if(context.length) value=`${context.join('\n')}\n${value}`;
         }
         payload.append(entry,value);
       });
@@ -5365,7 +5416,8 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
 <style id="v050-service-fixed-art-and-cycle">
 /* v0.50 — 人物固定入背景、天臺意象合成、標題箭頭與循環 V 型。 */
 .service-background-inperson{background-image:url("assets/release/services/service-bg-inperson-final-0918.webp")!important}
-.service-background-remote{background-image:url("assets/release/services/service-bg-remote-final-0918.webp")!important}
+.service-background-remote{background-image:url("assets/release/services/service-bg-remote-user-0919-v2.webp")!important}
+.service-selector[data-transition-target="remote"] .service-mode-transition{background-image:url("assets/release/services/service-bg-remote-user-0919-v2.webp")!important}
 .service-jintong{display:none!important}
 .service-intro{width:max-content;max-width:54vw}
 .service-heading-row{display:inline-flex;align-items:center;justify-content:flex-start;gap:clamp(15px,1.7vw,28px);max-width:100%}
@@ -5686,6 +5738,19 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     pointer-events:none!important;
   }
   .service-node b{display:none!important}
+  .service-node.is-active b{
+    display:block!important;
+    position:absolute;
+    left:50%;
+    top:calc(50% + 36px);
+    width:max-content;
+    max-width:none;
+    overflow:visible;
+    white-space:nowrap!important;
+    transform:translateX(-50%);
+    line-height:1.35;
+    text-overflow:clip;
+  }
   .service-node-icon{
     background:#f6f0e2!important;
     box-shadow:0 4px 16px rgba(50,35,15,.12)!important;
@@ -5717,6 +5782,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   const title=section.querySelector('#serviceTitle');
   const lead=section.querySelector('#serviceLead');
   const meta=section.querySelector('#serviceMeta');
+  const serviceSelect=document.querySelector('#reserveService');
   const nodeHost=section.querySelector('.service-carousel-nodes');
   const routeLine=section.querySelector('.service-route-line');
   const items=[
@@ -5727,7 +5793,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   ];
   const mod=value=>(value%items.length+items.length)%items.length;
   let activeIndex=0;
-  let hasChosen=true;
+  let hasChosen=false;
   let audioContext;
   function playChoiceSound(index=activeIndex){
     try{
@@ -5761,6 +5827,11 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     button.addEventListener('click',()=>{
       const slot=Number(button.dataset.slot);
       if(slot) moveCarousel(slot);
+      else{
+        hasChosen=true;
+        playChoiceSound(activeIndex);
+        updateSelected(false);
+      }
     });
     nodeHost.appendChild(button);
     return button;
@@ -5784,6 +5855,10 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     modeButtons.forEach(button=>button.classList.toggle('is-active',button.dataset.serviceMode===item.mode));
     nodes.forEach((button,index)=>paintNode(button,activeIndex+slots[index],slots[index]));
     symbols.forEach(symbol=>symbol.classList.toggle('is-active',symbol.dataset.serviceSymbol===item.id));
+    if(serviceSelect){
+      serviceSelect.value=hasChosen?item.label:'';
+      serviceSelect.dispatchEvent(new Event('change',{bubbles:true}));
+    }
     const paintCopy=()=>{
       if(title) title.textContent=item.label;
       if(lead) lead.textContent=item.copy;
@@ -5804,6 +5879,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     if(carouselMoving||!direction) return;
     direction=Math.max(-2,Math.min(2,direction));
     carouselMoving=true;
+    hasChosen=true;
     const nextIndex=mod(activeIndex+direction);
     playChoiceSound(nextIndex);
     nodes.forEach(button=>{
@@ -5817,6 +5893,10 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     section.dataset.mode=item.mode;
     modeButtons.forEach(button=>button.classList.toggle('is-active',button.dataset.serviceMode===item.mode));
     symbols.forEach(symbol=>symbol.classList.toggle('is-active',symbol.dataset.serviceSymbol===item.id));
+    if(serviceSelect){
+      serviceSelect.value=item.label;
+      serviceSelect.dispatchEvent(new Event('change',{bubbles:true}));
+    }
     if(intro){
       intro.classList.add('is-copy-changing');
       setTimeout(()=>{
@@ -5847,6 +5927,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     moveCarousel(forward<=backward?forward:-backward);
   }));
   section.querySelector('.service-register-button')?.addEventListener('click',()=>{
+    window.dispatchEvent(new CustomEvent('feng:form-enter'));
     smoothSectionScroll(document.querySelector('#form'),1050);
   });
 
@@ -5944,6 +6025,15 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   const observer=new IntersectionObserver(entries=>{
     entries.forEach(entry=>{
       section.classList.toggle('is-visible',entry.isIntersecting);
+      if(entry.isIntersecting&&!section.dataset.serviceVisited){
+        section.dataset.serviceVisited='true';
+        activeIndex=0;
+        hasChosen=false;
+        carouselMoving=false;
+        updateSelected(false);
+      }else if(!entry.isIntersecting){
+        delete section.dataset.serviceVisited;
+      }
     });
   },{threshold:.18});
   observer.observe(section);
@@ -6061,6 +6151,570 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
 }
 </style>
 
+<style id="v053-form-ritual-preview">
+/* 入室登記預覽：將表單收進「封箋成卷」的儀式語言。 */
+.form-preview{
+  overflow:hidden;
+  padding:clamp(62px,8vh,92px) clamp(24px,7vw,96px)!important;
+  background:
+    radial-gradient(circle at 16% 22%,rgba(255,251,233,.92),transparent 31%),
+    radial-gradient(circle at 88% 76%,rgba(126,157,146,.23),transparent 34%),
+    linear-gradient(135deg,#e9e1ce 0%,#e3e1d2 47%,#d6e2dc 100%)!important;
+}
+.form-preview::before{
+  content:"";
+  display:block!important;
+  position:absolute;
+  z-index:0;
+  inset:-12%;
+  height:auto!important;
+  pointer-events:none;
+  opacity:.62;
+  background:
+    radial-gradient(ellipse at 10% 55%,transparent 0 22%,rgba(255,255,255,.48) 22.5% 23.2%,transparent 24%),
+    radial-gradient(ellipse at 78% 18%,transparent 0 17%,rgba(181,149,86,.12) 17.5% 18.1%,transparent 19%),
+    repeating-linear-gradient(8deg,rgba(74,82,70,.018) 0 1px,transparent 1px 7px);
+  transform:rotate(-2deg);
+}
+.form-card{
+  width:min(920px,100%)!important;
+  overflow:hidden;
+  padding:clamp(38px,5vw,58px)!important;
+  border:1px solid rgba(157,119,55,.72)!important;
+  border-radius:28px!important;
+  background:
+    linear-gradient(105deg,rgba(255,255,255,.58),transparent 25%),
+    repeating-linear-gradient(0deg,rgba(112,92,59,.022) 0 1px,transparent 1px 5px),
+    rgba(255,252,242,.82)!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.72),
+    inset 0 0 70px rgba(142,112,53,.06),
+    0 28px 70px rgba(48,61,53,.15)!important;
+  -webkit-backdrop-filter:blur(12px) saturate(.85);
+  backdrop-filter:blur(12px) saturate(.85);
+}
+.form-card::before{
+  content:none;
+  display:none;
+}
+.form-card::after{
+  content:"";
+  position:absolute;
+  inset:12px;
+  pointer-events:none;
+  border:1px solid rgba(176,141,75,.16);
+  border-radius:20px;
+}
+.form-ritual-head{position:relative;z-index:2;max-width:690px;padding-right:95px}
+.form-ritual-head .kicker{margin-bottom:13px;color:#9b7432;letter-spacing:.32em}
+.form-ritual-head h2{
+  color:#243d39;
+  font-size:clamp(34px,4.2vw,52px)!important;
+  line-height:1.32;
+  letter-spacing:.07em;
+}
+.form-ritual-head p{margin:15px 0 0!important;color:#67736f!important;letter-spacing:.07em}
+.form-seal{
+  position:absolute;
+  z-index:3;
+  top:34px;
+  right:42px;
+  width:117px;
+  height:117px;
+  display:block;
+  border:0;
+  transform:rotate(-7deg);
+  opacity:.58;
+  mix-blend-mode:multiply;
+  filter:drop-shadow(1px 0 rgba(113,67,37,.14)) drop-shadow(-1px 1px rgba(113,67,37,.09));
+}
+.form-seal::after{
+  content:"";
+  position:absolute;
+  inset:6%;
+  border-radius:50%;
+  background:radial-gradient(circle at 34% 42%,transparent 0 44%,rgba(116,66,38,.08) 48%,transparent 56%);
+  filter:blur(.7px);
+}
+.form-seal img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter:brightness(0) saturate(100%) invert(35%) sepia(27%) saturate(1078%) hue-rotate(338deg) brightness(91%) contrast(88%);
+}
+#reservationForm{
+  position:relative;
+  z-index:2;
+  display:block;
+  margin-top:28px;
+}
+.form-ritual-status{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:auto minmax(90px,1fr) auto;
+  align-items:center;
+  gap:13px;
+  margin-bottom:5px;
+  color:#8a7146;
+  font-size:10px;
+  letter-spacing:.14em;
+}
+.form-ritual-status b{min-width:56px;color:#9a7331;font-weight:500;text-align:right}
+.form-gold-thread{position:relative;height:1px;background:rgba(154,115,49,.18);overflow:visible}
+.form-gold-thread::before,.form-gold-thread::after{content:"";position:absolute;top:50%;width:5px;height:5px;border:1px solid #b18a48;border-radius:50%;transform:translateY(-50%);background:#faf5e9}
+.form-gold-thread::before{left:0}.form-gold-thread::after{right:0}
+.form-gold-thread i{display:block;width:var(--form-progress,0%);height:100%;background:linear-gradient(90deg,#9e7331,#d8bb73);box-shadow:0 0 8px rgba(190,144,60,.34);transition:width .4s ease}
+#reservationForm .field{position:relative;margin-top:17px}
+#reservationForm .field-wide{grid-column:1/-1}
+#reservationForm .field label{padding-left:2px;color:#806a42;font-weight:600}
+#reservationForm .field::after{
+  content:"";
+  position:absolute;
+  top:1px;
+  right:4px;
+  width:8px;
+  height:8px;
+  border:1px solid rgba(156,116,45,.42);
+  border-radius:50%;
+  background:rgba(255,255,255,.5);
+  transition:background .25s ease,box-shadow .25s ease,transform .25s ease;
+}
+#reservationForm .field.is-complete::after{
+  background:#b78539;
+  box-shadow:0 0 0 4px rgba(183,133,57,.11),0 0 12px rgba(183,133,57,.25);
+  transform:scale(1.08);
+}
+#reservationForm input,#reservationForm textarea,#reservationForm select{
+  width:100%;
+  box-sizing:border-box;
+  padding:13px 15px;
+  border:1px solid rgba(154,132,89,.5);
+  border-radius:11px;
+  outline:none;
+  background:rgba(255,255,255,.48);
+  color:#29423f;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.56);
+  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
+}
+#reservationForm input:focus,#reservationForm textarea:focus,#reservationForm select:focus{
+  border-color:#a87d34;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 0 0 3px rgba(168,125,52,.09),inset 0 1px 0 rgba(255,255,255,.68);
+}
+#reservationForm textarea{min-height:112px}
+.field-whisper{display:block;margin-top:7px;color:#927951;font-size:10px;letter-spacing:.08em;opacity:.78}
+.form-message{grid-column:1/-1}
+#submitReservation{
+  grid-column:1/-1;
+  justify-self:start;
+  display:inline-flex;
+  align-items:center;
+  gap:13px;
+  margin-top:24px;
+  padding:11px 13px 11px 24px;
+  border-color:#9b7738;
+  background:linear-gradient(120deg,#254844,#31564f);
+  box-shadow:0 10px 24px rgba(37,72,68,.17);
+  letter-spacing:.13em;
+}
+#submitReservation i{
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  box-sizing:border-box;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:1px solid rgba(242,223,179,.62);
+  border-radius:50%;
+  color:#f2dfb3;
+  font-style:normal;
+  font-family:var(--display-font);
+  font-size:12px;
+  line-height:1;
+  letter-spacing:0;
+  text-indent:0;
+  transition:transform .3s ease,background .3s ease;
+}
+#submitReservation.is-ready i{background:rgba(242,223,179,.14);transform:rotate(12deg) scale(1.06)}
+#submitReservation:hover i{transform:rotate(12deg) scale(1.08)}
+
+/* 三幕式入室流程：每次只呈現當下需要回答的一組問題。 */
+.form-step-shell{
+  position:relative;
+  margin-top:14px;
+  padding:0 46px;
+}
+.form-step-viewport{
+  height:var(--form-step-height,286px);
+  overflow:hidden;
+  transition:height .62s cubic-bezier(.2,.76,.18,1);
+}
+.form-step-track{
+  display:flex;
+  align-items:flex-start;
+  width:100%;
+  transform:translate3d(var(--form-step-shift,0%),0,0);
+  transition:transform .78s cubic-bezier(.2,.76,.18,1);
+  will-change:transform;
+}
+.form-step{
+  min-width:100%;
+  box-sizing:border-box;
+  display:grid;
+  align-content:start;
+  padding:5px 5px 8px;
+  opacity:.34;
+  transition:opacity .42s ease;
+}
+.form-step.is-active{opacity:1}
+.form-step-kicker{
+  margin-bottom:6px;
+  color:#9b7432;
+  font-size:10px;
+  letter-spacing:.24em;
+}
+.form-step-fields{display:grid;gap:0 22px;align-content:start}
+.form-step-fields-two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-step-fields-three{grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-step-fields-three .field:last-child{grid-column:1/-1}
+.form-step-fields-final{grid-template-columns:minmax(0,1.45fr) minmax(220px,.8fr)}
+.form-step-fields-final .field:first-child{grid-row:1/4}
+.form-step-fields-final .field:nth-child(2){grid-column:2}
+.form-step-fields-final .form-submit-row{
+  grid-column:1/-1;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  position:relative;
+  top:0;
+  margin-top:17px;
+}
+.form-step-fields-final .form-message{
+  grid-column:3;
+  justify-self:start;
+  margin-left:20px;
+  min-height:18px;
+  text-align:left;
+}
+.form-step-fields-final #submitReservation{
+  grid-column:2;
+  justify-self:center;
+  margin:0;
+  box-shadow:none;
+}
+.form-step-fields-final #submitReservation:hover{box-shadow:none}
+.form-step-arrow{
+  position:absolute;
+  z-index:5;
+  top:50%;
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  color:#8c682e;
+  box-shadow:none;
+  transform:translateY(-50%);
+  transition:opacity .28s ease,transform .28s ease,background .28s ease;
+}
+.form-step-arrow span{
+  width:10px;
+  height:10px;
+  box-sizing:border-box;
+  display:block;
+  border-top:2.5px solid currentColor;
+  border-right:2.5px solid currentColor;
+  font-size:0;
+  line-height:0;
+  transform-origin:center;
+}
+.form-step-prev span{transform:rotate(-135deg)}
+.form-step-next span{transform:rotate(45deg)}
+.form-step-arrow:hover:not(:disabled){background:transparent;transform:translateY(-50%) scale(1.12)}
+.form-step-arrow:disabled{opacity:.16;pointer-events:none}
+.form-step-prev{left:-38px}.form-step-next{right:-38px}
+.form-step-dots{display:flex;justify-content:center;gap:10px;margin-top:17px}
+.form-step-dots button{
+  width:7px;
+  height:7px;
+  padding:0;
+  border:1px solid rgba(158,116,48,.56);
+  border-radius:50%;
+  background:transparent;
+  transition:width .35s ease,background .35s ease,box-shadow .35s ease;
+}
+.form-step-dots button.is-active{width:24px;border-radius:99px;background:#b7883d;box-shadow:0 0 12px rgba(183,136,61,.3)}
+.jintong-form-guide{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-height:76px;
+  margin:12px 0 0;
+}
+.jintong-form-avatar{
+  width:72px;
+  height:72px;
+  flex:0 0 72px;
+  display:grid;
+  place-items:end center;
+  overflow:visible;
+  border:1px solid rgba(177,135,66,.58);
+  border-radius:50%;
+  background:radial-gradient(circle at 50% 36%,rgba(255,253,242,.96),rgba(224,205,159,.64));
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.34),0 7px 16px rgba(79,56,25,.12);
+}
+.jintong-form-guide img{width:78px;height:78px;object-fit:contain;object-position:center bottom;transform:translateY(7px) scale(1.3)}
+.jintong-form-guide p{
+  position:relative;
+  margin:0!important;
+  padding:10px 15px;
+  border:1px solid rgba(162,123,54,.34);
+  border-radius:15px;
+  background:rgba(255,255,255,.48);
+  color:#6f5a37!important;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.jintong-form-guide p::before{
+  content:"";
+  position:absolute;
+  left:-7px;
+  top:50%;
+  width:12px;
+  height:12px;
+  border-left:1px solid rgba(162,123,54,.34);
+  border-bottom:1px solid rgba(162,123,54,.34);
+  background:rgba(255,255,255,.62);
+  transform:translateY(-50%) rotate(45deg);
+}
+
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  /* 上次保留的手機版調整：方案控制列與文字框同步下移 30px。 */
+  .service-mode-switch{top:calc(1.4svh + 30px)!important}
+  .service-intro{top:calc(6.8svh + 50px)!important}
+  .form-preview{padding:64px 18px 72px!important}
+  .form-card{padding:38px 23px 34px!important;border-radius:23px!important}
+  .form-card::before{left:13px}
+  .form-card::after{inset:8px;border-radius:16px}
+  .form-ritual-head{padding-right:92px}
+  .form-ritual-head h2{font-size:clamp(29px,8.3vw,39px)!important}
+  .form-ritual-head p{font-size:12px;line-height:1.8}
+  .form-seal{top:20px;right:18px;width:84px;height:84px}
+  #reservationForm{grid-template-columns:1fr;margin-top:22px}
+  #reservationForm .field{grid-column:1!important;margin-top:15px}
+  .form-ritual-status{grid-template-columns:auto 1fr;margin-bottom:2px}
+  .form-ritual-status b{grid-column:1/-1;text-align:left;margin-top:-4px}
+  #submitReservation{justify-self:stretch;justify-content:center}
+  .form-step-shell{padding:0 31px;margin-top:8px}
+  .form-step{padding:3px 2px 6px}
+  .form-step-fields,.form-step-fields-two,.form-step-fields-three,.form-step-fields-final{grid-template-columns:1fr}
+  .form-step-fields-three .field:last-child,.form-step-fields-final .field:first-child,
+  .form-step-fields-final .field:nth-child(2),.form-step-fields-final .form-submit-row{grid-column:1;grid-row:auto}
+  .form-step-arrow{width:34px;height:34px}
+  .form-step-prev{left:-22px}.form-step-next{right:-22px}
+  .form-step-kicker{font-size:9px;letter-spacing:.18em}
+  .jintong-form-guide{gap:9px;min-height:58px}
+  .jintong-form-avatar{width:58px;height:58px;flex-basis:58px}
+  .jintong-form-guide img{width:64px;height:64px;transform:translateY(6px) scale(1.3)}
+  .jintong-form-guide p{padding:8px 10px;font-size:10px;line-height:1.65!important}
+  #reservationForm textarea{min-height:92px}
+  .form-step-dots{margin-top:14px}
+  .form-step-fields-final .form-submit-row{
+    display:flex;
+    flex-direction:column-reverse;
+    gap:0;
+    top:0;
+    margin-top:0;
+  }
+  .form-step-fields-final .form-message{
+    justify-self:center;
+    width:auto;
+    text-align:center;
+    margin-left:0;
+    position:relative;
+    top:-3px;
+  }
+  .form-step-fields-final #submitReservation{top:-2px;margin-top:2px}
+  #submitReservation{transform:scale(.9);transform-origin:center}
+}
+@media (max-width:390px) and (max-height:700px){
+  .service-mode-switch{top:calc(env(safe-area-inset-top,0px) + 39px)!important}
+  .service-intro{top:calc(env(safe-area-inset-top,0px) + 99px)!important}
+}
+</style>
+
+<style id="v054-gold-thread-and-ambient-motion">
+/* 金線作為故事、方案與封箋之間的共同視覺語言。 */
+.story{position:relative;isolation:isolate}
+.intro,.story-scene{position:relative;overflow:hidden;isolation:isolate}
+.story-page-ribbons{position:absolute;z-index:6;inset:0;overflow:hidden;pointer-events:none}
+.story-page-ribbon{
+  position:absolute;
+  top:0;
+  bottom:0;
+  width:clamp(78px,10vw,150px);
+  height:100%;
+  overflow:visible;
+  opacity:.52;
+}
+.story-page-ribbon.is-left{left:0}
+.story-page-ribbon.is-right{right:0}
+.story-page-ribbon .ribbon-base{
+  fill:none;
+  stroke:rgba(229,202,139,.28);
+  stroke-width:.62;
+  vector-effect:non-scaling-stroke;
+  opacity:0;
+  --line-opacity:.28;
+}
+.story-page-ribbon .ribbon-base.is-secondary{stroke:rgba(229,202,139,.14);stroke-width:.48;--line-opacity:.13}
+.story-page-ribbons.is-active .story-page-ribbon .ribbon-base{
+  animation:storyRibbonLineCycle var(--ribbon-duration,12s) ease-in-out infinite;
+  animation-delay:var(--ribbon-delay,0s);
+}
+.story-page-ribbons.is-active .story-page-ribbon .ribbon-base.is-secondary{
+  animation-name:storyRibbonLineCycle;
+  animation-delay:var(--ribbon-secondary-delay,-6s);
+}
+.story-page-ribbon .ribbon-glow{
+  fill:none;
+  stroke:#ffda78;
+  stroke-width:1.05;
+  stroke-linecap:round;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 2px rgba(255,218,120,.7)) drop-shadow(0 0 7px rgba(232,177,54,.32));
+  opacity:0;
+  --glow-opacity:.46;
+}
+.story-page-ribbons.is-active .story-page-ribbon .ribbon-glow{
+  animation:storyRibbonGlowCycle var(--ribbon-duration,12s) ease-in-out infinite;
+  animation-delay:var(--ribbon-delay,0s);
+}
+.story-page-ribbon .ribbon-glow.is-secondary{stroke-width:.82;filter:drop-shadow(0 0 2px rgba(255,218,120,.45)) drop-shadow(0 0 5px rgba(232,177,54,.22));--glow-opacity:.23}
+.story-page-ribbons.is-active .story-page-ribbon .ribbon-glow.is-secondary{
+  animation-name:storyRibbonGlowCycle;
+  animation-delay:var(--ribbon-secondary-delay,-6s);
+}
+#detail #enterTheme.enter-badge>span{display:inline}
+.story-shade::before{
+  content:"";
+  position:absolute;
+  left:18%;
+  top:22%;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:rgba(242,213,146,.72);
+  box-shadow:14vw 8vh rgba(242,213,146,.30),33vw -4vh rgba(242,213,146,.25),52vw 13vh rgba(242,213,146,.33),68vw 2vh rgba(242,213,146,.2);
+  opacity:.28;
+  animation:storyMotesDrift 8s ease-in-out infinite alternate;
+}
+@keyframes storyRibbonLineCycle{
+  0%{opacity:var(--line-opacity)}
+  25%,50%{opacity:0}
+  75%,100%{opacity:var(--line-opacity)}
+}
+@keyframes storyRibbonGlowCycle{
+  0%{opacity:var(--glow-opacity)}
+  25%,50%{opacity:0}
+  75%,100%{opacity:var(--glow-opacity)}
+}
+
+/* 方案頁重新進場：背景、文字、控制列與路徑依序落位。 */
+.service-selector:not(.is-visible) .service-background{opacity:0!important;transform:scale(1)!important}
+.service-mode-switch{opacity:0;translate:0 -9px;transition:opacity .7s ease .18s,translate .8s cubic-bezier(.2,.72,.2,1) .18s!important}
+.service-selector.is-visible .service-mode-switch{opacity:1;translate:0 0}
+.service-selector:not(.is-visible) .service-symbol{opacity:0!important;transform:translateY(20px) scale(.76)!important}
+.service-route{opacity:0;clip-path:none;transform:scale(1.2);transform-origin:center 72%}
+.service-selector.is-visible .service-route{animation:serviceEntranceRoute 4.2s cubic-bezier(.16,.72,.18,1) .08s both}
+@keyframes serviceEntranceRoute{
+  0%{opacity:1;transform:scale(1.2)}
+  100%{opacity:1;transform:scale(1)}
+}
+@keyframes storyMotesDrift{to{transform:translate3d(18px,-12px,0);opacity:.5}}
+
+.service-route-line .service-route-flow{
+  stroke:#ffe1a0!important;
+  stroke-width:2.35!important;
+  stroke-linecap:round;
+  stroke-dasharray:.018 .982!important;
+  stroke-dashoffset:0!important;
+  opacity:.94!important;
+  filter:drop-shadow(0 0 4px #e6ad32) drop-shadow(0 0 9px rgba(255,201,92,.72));
+  animation:serviceGoldCurrent 14s linear infinite!important;
+}
+.service-route-line .service-route-base{stroke-width:1!important;opacity:.5}
+.service-selector[data-mode="remote"] .service-route-line .service-route-flow{stroke:#d9ecff!important;filter:drop-shadow(0 0 6px rgba(152,209,255,.72))}
+.service-selector.is-visible .service-background-inperson,
+.service-selector.is-visible .service-background-remote{
+  animation:serviceBackgroundArrival 8.5s cubic-bezier(.2,.68,.2,1) .08s both;
+  transform-origin:center;
+}
+.service-symbol.is-active img{animation:serviceRelicGlow 4.8s ease-in-out infinite}
+@keyframes serviceGoldCurrent{to{stroke-dashoffset:-1}}
+@keyframes serviceBackgroundArrival{
+  0%{transform:scale(1);filter:brightness(.97)}
+  58%{transform:scale(1.032);filter:brightness(1.015)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes serviceRelicGlow{0%,100%{filter:brightness(.96) drop-shadow(0 0 12px rgba(255,205,112,.34))}50%{filter:brightness(1.08) drop-shadow(0 0 23px rgba(255,205,112,.58))}}
+
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  .story-page-ribbons{display:none!important}
+  .story-page-ribbon{width:clamp(44px,14vw,64px);opacity:.42}
+  .story-page-ribbon .ribbon-base{stroke-width:.54}
+  .story-page-ribbon .ribbon-base.is-secondary{stroke-width:.4}
+  .story-page-ribbon .ribbon-glow{stroke-width:.88}
+  .story-page-ribbon .ribbon-glow.is-secondary{stroke-width:.68}
+  .service-route-line .service-route-flow{stroke-width:1.7!important;opacity:.76!important}
+  .service-selector.is-visible .service-background-inperson,
+  .service-selector.is-visible .service-background-remote{animation-duration:20s}
+  #detail #enterTheme.enter-badge{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:3px!important;
+    writing-mode:horizontal-tb!important;
+    text-orientation:mixed!important;
+    white-space:normal!important;
+    letter-spacing:.12em!important;
+    line-height:1.08!important;
+    padding:8px 4px!important;
+  }
+  #detail #enterTheme.enter-badge>span{display:block!important;white-space:nowrap}
+}
+@media(prefers-reduced-motion:reduce){
+  .story-page-ribbon .ribbon-base,.story-page-ribbon .ribbon-glow,.story-shade::before,
+  .service-route-line .service-route-flow,.service-selector .service-background,
+  .service-symbol.is-active img{animation:none!important}
+}
+
+@media (min-width:901px) and (hover:hover) and (pointer:fine){
+  #detail .detail-bg{
+    display:block!important;
+    inset:-42px!important;
+    background-image:var(--detail-scene)!important;
+    background-size:cover!important;
+    background-position:center!important;
+    filter:blur(8px) saturate(.9) brightness(.7)!important;
+    transform:scale(1.045)!important;
+    opacity:.94!important;
+  }
+  #detail .detail-vignette{
+    display:block!important;
+    background:radial-gradient(circle at 50% 50%,rgba(8,13,13,.04),rgba(4,8,8,.2) 72%,rgba(2,5,5,.36))!important;
+    box-shadow:inset 0 0 110px rgba(0,0,0,.24)!important;
+  }
+  #detail .opened-scroll{position:relative!important;z-index:2!important;box-shadow:0 22px 70px rgba(0,0,0,.28)!important}
+}
+</style>
+
 <script id="v052-form-home-button-script">
 (function(){
   const button=document.querySelector('#formHomeButton');
@@ -6077,6 +6731,186 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
     if(window.FENG_DIALOGUE_API){ window.FENG_DIALOGUE_API.reset(); return; }
     window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   });
+})();
+</script>
+
+<script id="v054-story-gold-thread-script">
+(function(){
+  const story=document.querySelector('#story');
+  if(!story) return;
+  const curvePool={
+    left:[
+      'M112 0 C20 170 118 330 34 500 S116 820 48 1000',
+      'M54 0 C132 156 26 340 118 510 S32 824 104 1000',
+      'M122 0 C34 188 126 336 42 492 S112 790 34 1000',
+      'M150 0 C60 152 146 286 62 420 S148 614 44 766 S132 914 76 1000'
+    ],
+    right:[
+      'M48 0 C136 172 38 338 126 505 S42 822 112 1000',
+      'M116 0 C26 148 130 332 36 506 S126 826 52 1000',
+      'M38 0 C126 178 30 344 122 496 S44 792 116 1000',
+      'M10 0 C92 166 18 296 104 432 S16 630 122 782 S34 920 84 1000'
+    ]
+  };
+  const randomPair=side=>{
+    const order=[0,1,2,3].sort(()=>Math.random()-.5);
+    return [curvePool[side][order[0]],curvePool[side][order[1]]];
+  };
+  const ribbon=(side,index)=>{
+    const pair=randomPair(side);
+    return `<svg class="story-page-ribbon is-${side}" style="--ribbon-duration:12s;--ribbon-delay:0s;--ribbon-secondary-delay:-6s" viewBox="0 0 160 1000" preserveAspectRatio="none" aria-hidden="true"><path class="ribbon-base" data-line="primary" pathLength="1" d="${pair[0]}"/><path class="ribbon-base is-secondary" data-line="secondary" pathLength="1" d="${pair[1]}"/><path class="ribbon-glow" data-line="primary" pathLength="1" d="${pair[0]}"/><path class="ribbon-glow is-secondary" data-line="secondary" pathLength="1" d="${pair[1]}"/></svg>`;
+  };
+  const refreshLine=(svg,line)=>{
+    const side=svg.classList.contains('is-left')?'left':'right';
+    const current=svg.querySelector(`.ribbon-base[data-line="${line}"]`)?.getAttribute('d');
+    const choices=curvePool[side].filter(path=>path!==current);
+    const next=choices[Math.floor(Math.random()*choices.length)];
+    svg.querySelectorAll(`[data-line="${line}"]`).forEach(path=>path.setAttribute('d',next));
+  };
+  if(!story.querySelector(':scope > .story-page-ribbons')){
+    story.insertAdjacentHTML('beforeend',`<div class="story-page-ribbons" aria-hidden="true">${ribbon('left',0)}${ribbon('right',0)}</div>`);
+  }
+  const curveTimers=new WeakMap();
+  const stopCurveRefresh=ribbons=>{
+    (curveTimers.get(ribbons)||[]).forEach(id=>{clearTimeout(id);clearInterval(id)});
+    curveTimers.delete(ribbons);
+  };
+  const startCurveRefresh=ribbons=>{
+    stopCurveRefresh(ribbons);
+    const timers=[];
+    const schedule=(svg,line,delay)=>{
+      const first=setTimeout(()=>{
+        refreshLine(svg,line);
+        timers.push(setInterval(()=>refreshLine(svg,line),12000));
+      },delay);
+      timers.push(first);
+    };
+    ribbons.querySelectorAll('.story-page-ribbon').forEach(svg=>{
+      schedule(svg,'primary',4500);
+      schedule(svg,'secondary',10500);
+    });
+    curveTimers.set(ribbons,timers);
+  };
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const ribbons=entry.target.querySelector(':scope > .story-page-ribbons');
+      if(!ribbons) return;
+      if(entry.isIntersecting){
+        ribbons.classList.remove('is-active');
+        void ribbons.offsetWidth;
+        ribbons.classList.add('is-active');
+        startCurveRefresh(ribbons);
+      }else if(!entry.isIntersecting){
+        ribbons.classList.remove('is-active');
+        stopCurveRefresh(ribbons);
+      }
+    });
+  },{threshold:[0,.01]});
+  observer.observe(story);
+})();
+</script>
+
+<script id="v053-form-ritual-preview-script">
+(function(){
+  const form=document.querySelector('#reservationForm');
+  if(!form) return;
+  const fields=[...form.querySelectorAll('.field')];
+  const progress=document.querySelector('.form-gold-thread');
+  const progressText=document.querySelector('#formProgressText');
+  const submit=document.querySelector('#submitReservation');
+  const steps=[...form.querySelectorAll('.form-step')];
+  const dots=[...form.querySelectorAll('[data-form-step-dot]')];
+  const track=form.querySelector('.form-step-track');
+  const viewport=form.querySelector('.form-step-viewport');
+  const prev=form.querySelector('.form-step-prev');
+  const next=form.querySelector('.form-step-next');
+  let activeStep=0;
+  let advanceTimer=0;
+  const stepComplete=index=>{
+    const controls=[...steps[index].querySelectorAll('input,textarea,select[required]')];
+    return controls.length>0&&controls.every(control=>String(control.value).trim());
+  };
+  const syncStepHeight=()=>{
+    requestAnimationFrame(()=>{
+      const height=steps[activeStep]?.scrollHeight;
+      if(viewport&&height) viewport.style.height=`${Math.ceil(height)}px`;
+    });
+  };
+  const showStep=(index,focusFirst=false)=>{
+    activeStep=Math.max(0,Math.min(steps.length-1,index));
+    track?.style.setProperty('--form-step-shift',`${activeStep*-100}%`);
+    steps.forEach((step,stepIndex)=>{
+      const active=stepIndex===activeStep;
+      step.classList.toggle('is-active',active);
+      step.setAttribute('aria-hidden',String(!active));
+      step.inert=!active;
+    });
+    dots.forEach((dot,dotIndex)=>dot.classList.toggle('is-active',dotIndex===activeStep));
+    if(prev) prev.disabled=activeStep===0;
+    if(next) next.disabled=activeStep===steps.length-1;
+    syncStepHeight();
+    if(focusFirst) setTimeout(()=>steps[activeStep]?.querySelector('input,textarea,select')?.focus({preventScroll:true}),520);
+  };
+  const resetToFirstStep=()=>{
+    clearTimeout(advanceTimer);
+    showStep(0);
+  };
+  window.addEventListener('feng:form-enter',resetToFirstStep);
+  document.addEventListener('click',event=>{
+    if(event.target.closest('[data-target="#form"],a[href="#form"]')) resetToFirstStep();
+  },true);
+  let formWasVisible=false;
+  const formEntryObserver=new IntersectionObserver(entries=>{
+    const visible=entries.some(entry=>entry.isIntersecting&&entry.intersectionRatio>=.12);
+    if(visible&&!formWasVisible) resetToFirstStep();
+    formWasVisible=visible;
+  },{threshold:[0,.12]});
+  formEntryObserver.observe(document.querySelector('#form'));
+  const queueAdvance=index=>{
+    clearTimeout(advanceTimer);
+    if(index>=steps.length-1||index!==activeStep||!stepComplete(index)) return;
+    advanceTimer=setTimeout(()=>{
+      if(index===activeStep&&stepComplete(index)) showStep(index+1,true);
+    },520);
+  };
+  const updateProgress=()=>{
+    let complete=0;
+    fields.forEach(field=>{
+      const control=field.querySelector('input,textarea,select');
+      const filled=Boolean(control&&String(control.value).trim());
+      field.classList.toggle('is-complete',filled);
+      if(filled) complete+=1;
+    });
+    const percentage=Math.round((complete/fields.length)*100);
+    progress?.style.setProperty('--form-progress',percentage+'%');
+    if(progressText){
+      progressText.textContent=complete===0?'尚未落筆':complete===fields.length?'可以封存':complete>=4?'快要封箋':'正在成卷';
+    }
+    submit?.classList.toggle('is-ready',complete===fields.length);
+  };
+  form.addEventListener('input',updateProgress);
+  form.addEventListener('change',event=>{
+    updateProgress();
+    const step=event.target.closest('.form-step');
+    if(step) queueAdvance(Number(step.dataset.formStep));
+  });
+  form.addEventListener('focusout',event=>{
+    if(!event.target.matches('input,textarea')) return;
+    const step=event.target.closest('.form-step');
+    if(step) queueAdvance(Number(step.dataset.formStep));
+  });
+  prev?.addEventListener('click',()=>showStep(activeStep-1,true));
+  next?.addEventListener('click',()=>showStep(activeStep+1,true));
+  dots.forEach(dot=>dot.addEventListener('click',()=>showStep(Number(dot.dataset.formStepDot),true)));
+  window.addEventListener('resize',syncStepHeight,{passive:true});
+  document.fonts?.ready?.then(syncStepHeight);
+  form.querySelectorAll('.jintong-form-guide img').forEach(img=>img.addEventListener('load',syncStepHeight,{once:true}));
+  form.addEventListener('submit',()=>{
+    const invalid=steps.findIndex(step=>[...step.querySelectorAll('[required]')].some(control=>!String(control.value).trim()));
+    if(invalid>=0) showStep(invalid,true);
+  },true);
+  showStep(0);
+  updateProgress();
 })();
 </script>
 
