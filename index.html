@@ -2603,7 +2603,7 @@ function getDetailAssets(t){
   const detailScene=t.id==='wealth'
     ? 'assets/release/detail-blur-wealth-pixiu-opt.webp'
     : t.landscape;
-  return [...new Set([detailArt,detailScene].filter(Boolean))];
+  return [...new Set([t.img,detailArt,detailScene].filter(Boolean))];
 }
 function preloadDetailAsset(src,priority='low'){
   if(!src||src.startsWith('data:')) return Promise.resolve(src);
@@ -3616,11 +3616,11 @@ if(themePanelsEl){
   if(!C) return;
   const order=['people','wealth','family','work','health','love','dream','self'];
   const specs={
-people:{num:'01',title:'人際百鬼記',color:'#f3efe5',scroll:'assets/release/scroll-01.png',img:'assets/release/baize-v2.png',detailArt:'assets/release/detail-01-baize-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-01-baize-opt.webp'},
-wealth:{num:'02',title:'財富堆金記',color:'#b42e34',scroll:'assets/release/scroll-02.png',img:'assets/release/pixiu-v2.png',detailArt:'assets/release/detail-02-pixiu-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-02-pixiu-opt.webp',locked:false},
-family:{num:'03',title:'家族聊齋記',color:'#dc713d',scroll:'assets/release/scroll-03.png',img:'assets/release/qilin-v2.png',detailArt:'assets/release/detail-03-qilin-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-03-qilin-opt.webp'},
-work:{num:'04',title:'職場降魔記',color:'#d8ab35',scroll:'assets/release/scroll-04.png',img:'assets/release/xiezhi-v2.png',detailArt:'assets/release/detail-04-xiezhi-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-04-xiezhi-opt.webp'},
-health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/scroll-05.png',img:'assets/release/deer-v2.png',detailArt:'assets/release/detail-05-deer-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-05-deer-opt.webp'},
+people:{num:'01',title:'人際百鬼記',color:'#f3efe5',scroll:'assets/release/scroll-01.png',img:'assets/release/baize-v2.webp',detailArt:'assets/release/detail-01-baize-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-01-baize-opt.webp'},
+wealth:{num:'02',title:'財富堆金記',color:'#b42e34',scroll:'assets/release/scroll-02.png',img:'assets/release/pixiu-v2.webp',detailArt:'assets/release/detail-02-pixiu-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-02-pixiu-opt.webp',locked:false},
+family:{num:'03',title:'家族聊齋記',color:'#dc713d',scroll:'assets/release/scroll-03.png',img:'assets/release/qilin-v2.webp',detailArt:'assets/release/detail-03-qilin-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-03-qilin-opt.webp'},
+work:{num:'04',title:'職場降魔記',color:'#d8ab35',scroll:'assets/release/scroll-04.png',img:'assets/release/xiezhi-v2.webp',detailArt:'assets/release/detail-04-xiezhi-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-04-xiezhi-opt.webp'},
+health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/scroll-05.png',img:'assets/release/deer-v2.webp',detailArt:'assets/release/detail-05-deer-empty-opt.webp',mobileDetailArt:'assets/release/detail-mobile-05-deer-opt.webp'},
     love:{num:'06',title:'戀愛七擒記',color:'#c87894',scroll:'assets/release/scroll-06-locked.png',locked:true},
     dream:{num:'07',title:'夢想桃源記',color:'#485a98',scroll:'assets/release/scroll-07-locked.png',locked:true},
     self:{num:'08',title:'自我煉丹記',color:'#76518e',scroll:'assets/release/scroll-08-locked.png',locked:true}
@@ -6399,24 +6399,20 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   background:rgba(255,255,255,.48);
   color:#29423f;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.56);
-  transition:border-color .22s ease,background .22s ease,box-shadow .22s ease;
+  transition:border-color .22s ease,background-color .22s ease,box-shadow .22s ease;
 }
 #reservationForm select{
   -webkit-appearance:none;
   appearance:none;
   padding-right:48px;
-  background-image:
-    linear-gradient(45deg,transparent 50%,#8f6b31 50%),
-    linear-gradient(135deg,#8f6b31 50%,transparent 50%);
-  background-position:
-    calc(100% - 25px) 50%,
-    calc(100% - 19px) 50%;
-  background-size:6px 6px,6px 6px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.25 6 6.25 11 1.25' fill='none' stroke='%238f6b31' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position:right 20px center;
+  background-size:12px 8px;
   background-repeat:no-repeat;
 }
 #reservationForm input:focus,#reservationForm textarea:focus,#reservationForm select:focus{
   border-color:#a87d34;
-  background:rgba(255,255,255,.72);
+  background-color:rgba(255,255,255,.72);
   box-shadow:0 0 0 3px rgba(168,125,52,.09),inset 0 1px 0 rgba(255,255,255,.68);
 }
 #reservationForm textarea{min-height:112px}
