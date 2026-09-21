@@ -2784,6 +2784,44 @@ qa('.navbtn').forEach(btn=>btn.addEventListener('click',()=>{
   }
 }));
 
+// 左側選單跟隨目前停留頁面；以畫面中央所在區段為準。
+const navSpyButtons=qa('.navbtn[data-target]');
+const navSpySections=navSpyButtons.map(btn=>({
+  btn,
+  section:q(btn.dataset.target)
+})).filter(item=>item.section);
+let navSpyFrame=0;
+function syncSideNavigation(){
+  navSpyFrame=0;
+  if(!navSpySections.length) return;
+  const focusY=innerHeight*.48;
+  let current=navSpySections.find(item=>{
+    const rect=item.section.getBoundingClientRect();
+    return rect.top<=focusY&&rect.bottom>focusY;
+  });
+  if(!current){
+    current=navSpySections.reduce((best,item)=>{
+      const rect=item.section.getBoundingClientRect();
+      const distance=focusY<rect.top?rect.top-focusY:focusY-rect.bottom;
+      return !best||distance<best.distance?{...item,distance}:best;
+    },null);
+  }
+  navSpyButtons.forEach(btn=>{
+    const active=btn===current?.btn;
+    btn.classList.toggle('active',active);
+    if(active) btn.setAttribute('aria-current','page');
+    else btn.removeAttribute('aria-current');
+  });
+}
+function scheduleSideNavigationSync(){
+  if(navSpyFrame) return;
+  navSpyFrame=requestAnimationFrame(syncSideNavigation);
+}
+window.addEventListener('scroll',scheduleSideNavigationSync,{passive:true});
+window.addEventListener('resize',scheduleSideNavigationSync,{passive:true});
+window.addEventListener('hashchange',scheduleSideNavigationSync);
+requestAnimationFrame(syncSideNavigation);
+
 // 左上漢堡：收束／展開「故事、八記、入室」導覽。
 const menuButton=q('.hamb');
 if(menuButton){
