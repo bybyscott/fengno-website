@@ -3322,6 +3322,7 @@ if(themePanelsEl){
   }
 
   window.addEventListener('wheel',e=>{
+    if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse)').matches) return;
     if(Math.abs(e.deltaY)<=Math.abs(e.deltaX) || Math.abs(e.deltaY)<2) return;
     if(document.querySelector('.detail.open,.profile-page.open,.reservation-confirmation.open')) return;
     const storyRect=document.querySelector('#story')?.getBoundingClientRect();
@@ -7468,54 +7469,15 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   </div>
 </section>
 <script id="v054-beast-sensing-preview-script">
-(function(){
-  const params=new URLSearchParams(location.search);
-  if(params.get('preview')!=='beast-sensing-v1') return;
-  document.documentElement.classList.add('beast-sensing-preview');
-  const launcher=document.querySelector('#beastSensingLauncher');
-  const overlay=document.querySelector('#beastSensingOverlay');
-  if(!launcher||!overlay) return;
-  let cardTimer=0;
-  let savedScrollY=0;
-  let readyToExit=false;
-  const lockPage=()=>{
-    savedScrollY=window.scrollY;
-    document.documentElement.style.overflow='hidden';
-  };
-  const unlockPage=()=>{
-    document.documentElement.style.overflow='';
-    window.scrollTo({top:savedScrollY,left:0,behavior:'auto'});
-  };
-  const open=()=>{
-    clearTimeout(cardTimer);
-    readyToExit=false;
-    lockPage();
-    overlay.classList.remove('is-running','is-card');
-    overlay.classList.add('is-open');
-    overlay.setAttribute('aria-hidden','false');
-    void overlay.offsetWidth;
-    overlay.classList.add('is-running');
-    cardTimer=window.setTimeout(()=>{
-      overlay.classList.add('is-card');
-      readyToExit=true;
-      overlay.focus({preventScroll:true});
-    },4300);
-  };
-  const close=()=>{
-    if(!readyToExit) return;
-    clearTimeout(cardTimer);
-    overlay.classList.remove('is-open','is-running','is-card');
-    overlay.setAttribute('aria-hidden','true');
-    readyToExit=false;
-    unlockPage();
-    launcher.focus({preventScroll:true});
-  };
-  launcher.addEventListener('click',open);
-  overlay.addEventListener('click',close);
-  overlay.addEventListener('keydown',event=>{
-    if((event.key==='Escape'||event.key==='Enter'||event.key===' ')&&readyToExit){event.preventDefault();close()}
-  });
-  overlay.tabIndex=-1;
+(()=>{
+ if(new URLSearchParams(location.search).get('preview')!=='beast-sensing-v1')return;
+ document.documentElement.classList.add('beast-sensing-preview');
+ const launcher=document.getElementById('beastSensingLauncher'),overlay=document.getElementById('beastSensingOverlay');
+ if(!launcher||!overlay)return;
+ overlay.replaceChildren();let frame=null,savedY=0,savedOverflow='';
+ const close=()=>{if(!frame)return;frame.remove();frame=null;overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.documentElement.style.overflow=savedOverflow;window.scrollTo({top:savedY,behavior:'instant'});launcher.focus({preventScroll:true})};
+ launcher.addEventListener('click',()=>{if(frame)return;savedY=scrollY;savedOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';frame=document.createElement('iframe');frame.title='白澤神獸感應動畫';frame.src='beast-sensing.html?embedded=1';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#050706';overlay.append(frame);overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');frame.addEventListener('load',()=>frame?.contentWindow?.focus(),{once:true})});
+ window.addEventListener('message',event=>{if(frame&&event.origin===location.origin&&event.source===frame.contentWindow&&event.data?.type==='feng:sensing-close')close()});
 })();
 </script>
 
@@ -7812,5 +7774,11 @@ html.beast-sensing-preview .beast-sensing-launcher{
 }
 </style>
 
+<style id="v059-mobile-free-scroll">
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+html,html.story-programmatic-scroll{scroll-snap-type:none!important}
+.intro,.story .story-scene,.story-scene,#themes,.service-selector,.form-preview{scroll-snap-align:none!important;scroll-snap-stop:normal!important}
+}
+</style>
 </body>
 </html>
