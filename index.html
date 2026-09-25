@@ -3117,6 +3117,7 @@ if(themePanelsEl){
   function smoothStoryScroll(target,duration=1050,allowMobileSmooth=false){
     if(!target) return;
     if(storyScrollFrame) cancelAnimationFrame(storyScrollFrame);
+    document.documentElement.classList.add('story-programmatic-scroll');
     const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const startY=window.scrollY;
     const rect=target.getBoundingClientRect();
@@ -3125,10 +3126,12 @@ if(themePanelsEl){
     const distance=targetY-startY;
     if(window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse)').matches && !allowMobileSmooth){
       window.scrollTo({top:targetY,behavior:'auto'});
+      document.documentElement.classList.remove('story-programmatic-scroll');
       return;
     }
     if(Math.abs(distance)<2 || reduceMotion){
       window.scrollTo({top:targetY,behavior:'auto'});
+      document.documentElement.classList.remove('story-programmatic-scroll');
       return;
     }
     const started=performance.now();
@@ -3137,16 +3140,25 @@ if(themePanelsEl){
       const progress=Math.min(1,(now-started)/duration);
       window.scrollTo(0,startY+distance*ease(progress));
       if(progress<1) storyScrollFrame=requestAnimationFrame(step);
-      else storyScrollFrame=0;
+      else{
+        storyScrollFrame=0;
+        document.documentElement.classList.remove('story-programmatic-scroll');
+      }
     };
     storyScrollFrame=requestAnimationFrame(step);
+  }
+
+  /* 先固定下一幕的版面狀態，再沿用正式版的連續滑動節奏。 */
+  function prepareStoryEntrance(target){
+    if(!target?.matches?.('.story-scene')) return;
+    target.classList.add('is-current');
   }
 
   function goNextSection(index){
     const nextTarget = scenes[index+1] || document.querySelector('#themes');
     if(!nextTarget) return;
+    prepareStoryEntrance(nextTarget);
     smoothStoryScroll(nextTarget,1050,true);
-    if(nextTarget.matches && nextTarget.matches('.story-scene')) requestAnimationFrame(()=>nextTarget.classList.add('is-current'));
   }
 
   scenes.forEach((scene,i)=>{
@@ -3249,7 +3261,10 @@ if(themePanelsEl){
   if(introScrollHint){
     introScrollHint.setAttribute('role','button');
     introScrollHint.setAttribute('tabindex','0');
-    const enterStory=()=>smoothStoryScroll(scenes[0],1050,true);
+    const enterStory=()=>{
+      prepareStoryEntrance(scenes[0]);
+      smoothStoryScroll(scenes[0],1050,true);
+    };
     introScrollHint.addEventListener('click',enterStory);
     introScrollHint.addEventListener('keydown',e=>{
       if(e.key==='Enter' || e.key===' '){e.preventDefault();enterStory();}
@@ -3300,7 +3315,8 @@ if(themePanelsEl){
 
     if(!target) return false;
     storyWheelLocked=true;
-    smoothStoryScroll(target,1050);
+    prepareStoryEntrance(target);
+    smoothStoryScroll(target,1050,true);
     window.setTimeout(()=>{storyWheelLocked=false;},1260);
     return true;
   }
@@ -7026,6 +7042,775 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   updateProgress();
 })();
 </script>
+
+<style id="v055-mobile-viewport-fit">
+/* Mobile scenes use the live visual viewport instead of overlapping 100/120vh panels. */
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  html{
+    scroll-snap-type:y mandatory;
+    scroll-padding-top:0;
+    overscroll-behavior-y:none;
+  }
+  body{overscroll-behavior-y:none}
+  .intro,
+  .story .story-scene,
+  .story-scene,
+  #themes,
+  .service-selector,
+  .form-preview{
+    box-sizing:border-box!important;
+    height:100svh!important;
+    min-height:100svh!important;
+    max-height:100svh!important;
+    height:100dvh!important;
+    min-height:100dvh!important;
+    max-height:100dvh!important;
+    scroll-snap-align:start;
+    scroll-snap-stop:always;
+  }
+  .intro + .story-scene,
+  .story-scene + .story-scene{
+    margin-top:0!important;
+  }
+  .story-scene,
+  .story-scene:last-of-type{
+    -webkit-mask-image:none!important;
+    mask-image:none!important;
+    overflow:hidden!important;
+  }
+  .story-scene::before{
+    inset:0!important;
+  }
+  .story-scene::after,
+  .story-scene:last-of-type::after{
+    content:""!important;
+    display:block!important;
+    position:absolute!important;
+    z-index:1!important;
+    inset:0!important;
+    width:auto!important;
+    height:auto!important;
+    pointer-events:none!important;
+    background:linear-gradient(180deg,
+      rgba(3,7,8,.44) 0%,
+      rgba(3,7,8,.12) 10%,
+      transparent 20%,
+      transparent 76%,
+      rgba(3,7,8,.18) 86%,
+      rgba(3,7,8,.66) 100%)!important;
+  }
+  #themes{
+    display:grid!important;
+    grid-template-rows:29dvh minmax(0,59dvh) 12dvh;
+    overflow:hidden!important;
+  }
+  #themes .theme-header{
+    box-sizing:border-box!important;
+    height:29dvh!important;
+    min-height:0!important;
+    max-height:29dvh!important;
+    padding:calc(env(safe-area-inset-top,0px) + 30px) 18px 9px!important;
+    overflow:hidden!important;
+  }
+  #themes .theme-carousel-viewport{
+    height:59dvh!important;
+    min-height:0!important;
+    max-height:59dvh!important;
+  }
+  .service-selector{
+    margin-top:0!important;
+    overflow:hidden!important;
+  }
+  #services .service-route{
+    bottom:14dvh!important;
+  }
+  .form-preview{
+    position:relative;
+    margin-top:0!important;
+    padding:clamp(14px,3dvh,24px) 18px!important;
+    overflow:hidden!important;
+    align-content:center!important;
+  }
+  .form-card{
+    max-height:calc(100dvh - clamp(28px,6dvh,48px));
+  }
+}
+
+@media (max-width:900px) and (max-height:620px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (max-height:620px){
+  #services .service-route{bottom:11dvh!important}
+  .form-preview{padding:10px 14px!important}
+  .form-card{padding:24px 19px 20px!important;max-height:calc(100dvh - 20px)}
+  .form-ritual-head{min-height:0!important}
+  .form-ritual-head p{margin-top:8px!important}
+  #reservationForm{margin-top:12px!important}
+  .form-step-shell{margin-top:4px!important}
+}
+
+/* When a virtual keyboard or landscape layout makes the viewport very short,
+   keep the form usable instead of clipping fields. */
+@media (max-width:900px) and (max-height:480px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (max-height:480px){
+  html{scroll-snap-type:none!important}
+  .form-preview{
+    height:auto!important;
+    max-height:none!important;
+    min-height:100dvh!important;
+    overflow:auto!important;
+    align-content:start!important;
+  }
+  .form-card{max-height:none!important}
+}
+</style>
+
+<script id="v055-mobile-viewport-fit-script">
+(function(){
+  const mobileViewport=window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse)');
+  const alignDeepLink=()=>{
+    if(!mobileViewport.matches||!location.hash) return;
+    const target=document.querySelector(location.hash);
+    if(!target) return;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>target.scrollIntoView({block:'start',behavior:'auto'})));
+  };
+  window.addEventListener('load',alignDeepLink,{once:true});
+  window.addEventListener('pageshow',event=>{if(event.persisted) alignDeepLink()});
+})();
+</script>
+
+<style id="v056-mobile-rhythm-and-safe-area">
+/* v0.56 — 統一各手機高度的安全邊界、八記間距與方案節點節奏。 */
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  :root{--mobile-safe-x:clamp(22px,6vw,34px)}
+
+  /* 所有主要文案保留穩定的左右呼吸，不貼齊瀏海、側欄或畫面邊界。 */
+  .intro-copy{
+    width:min(82vw,calc(100vw - var(--mobile-safe-x) - var(--mobile-safe-x)))!important;
+  }
+  .story-scene{
+    padding-left:max(var(--mobile-safe-x),env(safe-area-inset-left,0px))!important;
+    padding-right:max(var(--mobile-safe-x),env(safe-area-inset-right,0px))!important;
+  }
+  .story-scene .copy{
+    width:min(calc(100vw - var(--mobile-safe-x) - var(--mobile-safe-x)),620px)!important;
+    max-width:100%!important;
+  }
+
+  /* 八記採用內容自動高度：標題再長也不擠壓或裁切卷軸。 */
+  #themes{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-rows:none!important;
+    padding:0 0 clamp(26px,5dvh,46px)!important;
+  }
+  #themes .theme-header{
+    flex:0 0 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    gap:6px!important;
+    padding:
+      calc(env(safe-area-inset-top,0px) + clamp(24px,4dvh,32px))
+      var(--mobile-safe-x)
+      clamp(10px,1.8dvh,16px)!important;
+    overflow:visible!important;
+  }
+  #themes .theme-header .kicker{
+    margin-bottom:8px!important;
+    font-size:10px!important;
+    line-height:1.3!important;
+  }
+  body.menu-collapsed #themes .theme-header .kicker{padding-left:36px!important}
+  #themes .theme-header h2{line-height:1.25!important}
+  #themes .theme-header p{line-height:1.55!important}
+  #themes .theme-carousel-viewport{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+  }
+  #themes .theme-panels{height:100%!important}
+  #themes .theme{
+    top:clamp(14px,2.2dvh,20px)!important;
+    width:clamp(82px,27vw,118px)!important;
+    transform:translate3d(calc(-50% + var(--carousel-x)),0,0) scale(var(--carousel-scale))!important;
+    transform-origin:top center!important;
+  }
+
+  /* 方案節點維持在意象圖下方；高螢幕會同步上提，不再沉到頁尾。 */
+  #services .service-route{
+    left:max(20px,env(safe-area-inset-left,0px))!important;
+    right:max(20px,env(safe-area-inset-right,0px))!important;
+    bottom:14dvh!important;
+  }
+  .service-mode-switch,
+  .service-intro{
+    max-width:calc(100vw - var(--mobile-safe-x) - var(--mobile-safe-x))!important;
+  }
+  .form-preview{
+    padding-left:max(18px,env(safe-area-inset-left,0px))!important;
+    padding-right:max(18px,env(safe-area-inset-right,0px))!important;
+  }
+  .form-card{width:100%!important;max-width:920px!important}
+}
+
+@media (max-width:900px) and (max-height:650px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (max-height:650px){
+  #themes .theme{width:clamp(72px,24vw,92px)!important}
+  #services .service-route{bottom:11dvh!important}
+}
+
+@media (max-width:900px) and (min-height:760px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (min-height:760px){
+  #services .service-route{bottom:17dvh!important}
+}
+
+@media (max-width:900px) and (min-height:900px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (min-height:900px){
+  #services .service-route{bottom:19dvh!important}
+}
+</style>
+
+<!-- Desktop-only beast sensing prototype. Enabled with ?preview=beast-sensing-v1 -->
+<style id="v054-beast-sensing-preview">
+.beast-sensing-launcher,.beast-sensing-overlay{display:none}
+@media all{
+  html.beast-sensing-preview .beast-sensing-launcher{
+    --sense-gold:#d7b66b;
+    position:fixed;right:34px;bottom:32px;z-index:128;
+    display:grid;justify-items:center;gap:9px;
+    width:112px;padding:0;border:0;background:transparent;color:#f1dfb2;
+    font-family:inherit;letter-spacing:.16em;cursor:pointer;
+    filter:drop-shadow(0 12px 22px rgba(0,0,0,.34));
+  }
+  .beast-sensing-launcher::before{
+    content:"";position:absolute;inset:-18px -9px -13px;
+    border-radius:60px;background:radial-gradient(circle at 50% 38%,rgba(13,18,17,.72),rgba(6,10,9,.28) 54%,transparent 72%);
+    pointer-events:none;
+  }
+  .beast-sensing-orb{
+    position:relative;width:72px;height:72px;border-radius:50%;
+    display:grid;place-items:center;overflow:hidden;
+    border:1px solid rgba(228,198,126,.78);
+    background:radial-gradient(circle at 46% 38%,rgba(229,198,124,.19),rgba(22,29,27,.91) 52%,rgba(7,11,10,.98));
+    box-shadow:inset 0 0 0 5px rgba(215,182,107,.055),0 0 0 1px rgba(0,0,0,.44),0 0 25px rgba(207,166,73,.13);
+    transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease,border-color .45s ease;
+  }
+  .beast-sensing-orb::before,.beast-sensing-orb::after{
+    content:"";position:absolute;border-radius:50%;pointer-events:none;
+  }
+  .beast-sensing-orb::before{inset:8px;border:1px solid rgba(223,191,117,.27)}
+  .beast-sensing-orb::after{
+    width:19px;height:28px;left:27px;top:20px;border-radius:58% 42% 58% 42%;
+    background:radial-gradient(circle at 40% 30%,#fff5bd 0 7%,#e4bf60 34%,#9d6522 72%,#59320f 100%);
+    box-shadow:0 0 12px rgba(255,213,104,.72),0 0 28px rgba(213,162,57,.38);
+    transform:rotate(27deg);
+  }
+  .beast-sensing-launcher strong{position:relative;font-size:13px;font-weight:500;text-shadow:0 2px 12px #000;white-space:nowrap}
+  .beast-sensing-launcher:hover .beast-sensing-orb{transform:translateY(-4px) scale(1.045);border-color:#f0d18a;box-shadow:inset 0 0 0 5px rgba(215,182,107,.08),0 0 0 1px rgba(0,0,0,.44),0 0 35px rgba(225,183,81,.3)}
+  .beast-sensing-launcher:focus-visible{outline:1px solid #e4c779;outline-offset:9px;border-radius:44px}
+
+  html.beast-sensing-preview .beast-sensing-overlay{
+    position:fixed;inset:0;z-index:500;display:block;
+    color:#ead9ad;background:#000;overflow:hidden;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .28s ease,visibility 0s linear .28s;
+  }
+  html.beast-sensing-preview .beast-sensing-overlay.is-open{
+    opacity:1;visibility:visible;pointer-events:auto;transition:opacity .28s ease;
+  }
+  .beast-sensing-stage{position:absolute;inset:0;background:#000;isolation:isolate}
+  .beast-sensing-stage::before{
+    content:"";position:absolute;inset:-15%;z-index:0;opacity:0;
+    background:radial-gradient(circle at 50% 50%,rgba(255,225,143,.24),rgba(164,105,31,.09) 24%,rgba(0,0,0,0) 52%);
+  }
+  .beast-sensing-overlay.is-running .beast-sensing-stage::before{animation:senseAtmosphere 4.4s ease-out .35s both}
+  .beast-sensing-landscape{position:absolute;inset:4% 0 3%;z-index:1;width:100%;height:93%;overflow:visible}
+  .beast-sensing-landscape path{
+    fill:none;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:1;stroke-dashoffset:1;
+    vector-effect:non-scaling-stroke;
+  }
+  .sense-mountain{stroke:rgba(235,188,82,.76);stroke-width:1.15}
+  .sense-mountain-detail{stroke:rgba(215,168,72,.48);stroke-width:.72}
+  .sense-mist{stroke:rgba(245,215,145,.5);stroke-width:.8}
+  .sense-water{stroke:rgba(197,151,66,.42);stroke-width:.68}
+  .beast-sensing-overlay.is-running .sense-mountain{animation:senseDraw 1.75s cubic-bezier(.35,.05,.35,1) .55s forwards,senseWithdraw .8s ease 2.45s forwards}
+  .beast-sensing-overlay.is-running .sense-mist{animation:senseDraw 1.6s ease .8s forwards,senseWithdraw .75s ease 2.4s forwards}
+  .beast-sensing-overlay.is-running .sense-water{animation:senseDraw 1.55s ease .95s forwards,senseWithdraw .7s ease 2.45s forwards}
+  .beast-sensing-seed-wrap{
+    position:absolute;left:50%;top:50%;z-index:4;width:132px;height:132px;
+    transform:translate(-50%,-50%) scale(.18);opacity:0;
+    display:grid;place-items:center;
+  }
+  .beast-sensing-overlay.is-running .beast-sensing-seed-wrap{animation:senseSeedArrive 1.25s cubic-bezier(.16,.82,.2,1) 1.35s forwards,senseSeedLift .9s ease 2.6s forwards}
+  .beast-sensing-seed-glow{position:absolute;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(255,232,153,.58),rgba(222,164,55,.21) 34%,rgba(178,111,24,.08) 53%,transparent 70%);filter:blur(8px);animation:senseSeedBreathe 1.75s ease-in-out infinite}
+  .beast-sensing-seed{
+    position:relative;width:72px;height:72px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,240,173,.34) 0 27%,rgba(239,189,77,.12) 28% 45%,rgba(67,38,7,.75) 46% 56%,rgba(242,194,84,.28) 57% 100%);
+    border:2px solid rgba(255,218,117,.94);
+    box-shadow:inset 0 0 12px rgba(255,235,163,.58),inset 0 0 30px rgba(210,144,38,.35),0 0 12px #ffe09a,0 0 36px rgba(238,182,67,.88),0 0 76px rgba(207,135,31,.46);
+  }
+  .beast-sensing-seed::before{
+    content:"";position:absolute;inset:10px;border:1px solid rgba(255,231,153,.72);border-radius:50%;box-shadow:0 0 14px rgba(255,214,112,.5)
+  }
+  .beast-sensing-seed::after{
+    content:"";position:absolute;left:50%;top:50%;width:10px;height:10px;border-radius:50%;background:#fff3bd;transform:translate(-50%,-50%);box-shadow:0 0 12px #ffe4a0,0 0 28px #df9e33
+  }
+  .beast-sensing-beam{
+    position:absolute;left:50%;top:-12%;z-index:3;width:6px;height:124%;opacity:0;transform:translateX(-50%) scaleY(.08);transform-origin:center;
+    background:linear-gradient(180deg,transparent,rgba(255,237,171,.36) 24%,#fff7d3 48%,#fffdf0 50%,#fff7d3 52%,rgba(255,220,124,.34) 76%,transparent);
+    box-shadow:0 0 8px #fff0b8,0 0 28px rgba(244,199,95,.85),0 0 72px rgba(218,151,43,.48);filter:blur(.2px)
+  }
+  .beast-sensing-overlay.is-running .beast-sensing-beam{animation:senseBeam .9s ease 2.3s forwards}
+  .beast-sensing-burst{
+    position:absolute;left:50%;top:50%;z-index:5;width:112vw;height:6px;border-radius:50%;opacity:0;transform:translate(-50%,-50%) scaleX(0);transform-origin:center;
+    background:linear-gradient(90deg,transparent 0%,rgba(225,166,57,.18) 13%,rgba(255,222,134,.72) 38%,#fff8d5 49%,#fffef0 50%,#fff8d5 51%,rgba(255,222,134,.72) 62%,rgba(225,166,57,.18) 87%,transparent 100%);
+    box-shadow:0 0 14px #ffe5a2,0 0 48px rgba(230,177,69,.8),0 0 120px rgba(202,128,28,.48)
+  }
+  .beast-sensing-overlay.is-running .beast-sensing-burst{animation:senseBurst 1.05s cubic-bezier(.2,.74,.22,1) 3.02s forwards}
+  .beast-sensing-paper{
+    position:absolute;top:-8%;bottom:-8%;z-index:7;width:55%;opacity:0;
+    background:
+      linear-gradient(90deg,rgba(255,249,222,.08),rgba(255,239,181,.72) 52%,rgba(255,252,229,.92)),
+      repeating-linear-gradient(8deg,rgba(119,86,31,.035) 0 1px,transparent 1px 7px);
+    box-shadow:0 0 45px rgba(255,221,140,.16);filter:blur(.15px)
+  }
+  .beast-sensing-paper::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.21),transparent);opacity:.45}
+  .beast-sensing-paper-left{right:50%;transform-origin:right center;clip-path:polygon(0 4%,100% 0,100% 100%,4% 96%)}
+  .beast-sensing-paper-right{left:50%;transform-origin:left center;clip-path:polygon(0 0,100% 4%,96% 96%,0 100%);background-position:right top}
+  .beast-sensing-overlay.is-running .beast-sensing-paper-left{animation:sensePaperLeft 1.15s cubic-bezier(.2,.78,.22,1) 3.72s forwards}
+  .beast-sensing-overlay.is-running .beast-sensing-paper-right{animation:sensePaperRight 1.15s cubic-bezier(.2,.78,.22,1) 3.72s forwards}
+  .beast-sensing-goldwash{
+    position:absolute;inset:-18%;z-index:6;opacity:0;transform:scale(.08);border-radius:50%;
+    background:radial-gradient(circle,#fffbe2 0,#ffe9a9 21%,#dca448 51%,rgba(128,72,14,.8) 70%,transparent 72%);filter:blur(18px)
+  }
+  .beast-sensing-overlay.is-running .beast-sensing-goldwash{animation:senseGoldWash 1.15s cubic-bezier(.22,.72,.18,1) 3.74s forwards}
+  .beast-sensing-card{
+    position:absolute;left:50%;top:50%;z-index:12;width:min(29vw,390px);aspect-ratio:2/3;
+    transform:translate(-50%,-46%) scale(.82);opacity:0;border-radius:28px;
+    display:grid;place-items:center;padding:32px;text-align:center;
+    color:#4e3619;border:1px solid rgba(179,126,39,.78);
+    background:
+      linear-gradient(145deg,rgba(255,255,255,.7),transparent 38%),
+      radial-gradient(circle at 50% 34%,rgba(255,246,204,.96),rgba(227,198,132,.96) 55%,rgba(156,105,37,.98));
+    box-shadow:0 0 0 7px rgba(255,246,210,.32),0 28px 90px rgba(45,24,3,.38),inset 0 0 45px rgba(255,248,211,.38);
+  }
+  .beast-sensing-card::before{content:"";position:absolute;inset:15px;border:1px solid rgba(139,91,27,.43);border-radius:19px}
+  .beast-sensing-card::after{content:"";position:absolute;inset:27px;border:1px solid rgba(139,91,27,.18);border-radius:13px}
+  .beast-sensing-card-mark{position:relative;width:92px;height:92px;border:1px solid rgba(123,79,22,.46);border-radius:50%;display:grid;place-items:center;font-size:38px;box-shadow:inset 0 0 0 7px rgba(255,255,255,.13)}
+  .beast-sensing-card-copy{position:absolute;left:0;right:0;bottom:54px;font-size:12px;letter-spacing:.32em}
+  .beast-sensing-overlay.is-card .beast-sensing-card{animation:senseCardReveal .95s cubic-bezier(.16,.84,.2,1) forwards}
+  .beast-sensing-exit{position:absolute;left:50%;bottom:24px;z-index:14;transform:translateX(-50%);opacity:0;color:rgba(70,44,14,.68);font-size:11px;letter-spacing:.2em;pointer-events:none}
+  .beast-sensing-overlay.is-card .beast-sensing-exit{animation:senseHintIn .5s ease .62s forwards}
+  @keyframes senseDraw{to{stroke-dashoffset:0}}
+  @keyframes senseWithdraw{to{stroke-dashoffset:-1;opacity:.14}}
+  @keyframes senseAtmosphere{0%{opacity:0;transform:scale(.86)}45%{opacity:1}100%{opacity:.15;transform:scale(1.05)}}
+  @keyframes senseSeedArrive{0%{opacity:0;transform:translate(-50%,-50%) scale(.18)}70%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+  @keyframes senseSeedLift{0%{opacity:1;filter:brightness(1)}100%{opacity:1;filter:brightness(1.65)}}
+  @keyframes senseSeedBreathe{50%{transform:scale(1.16);opacity:.72}}
+  @keyframes senseBeam{0%{opacity:0;transform:translateX(-50%) scaleY(.08)}30%{opacity:1}100%{opacity:.9;transform:translateX(-50%) scaleY(1)}}
+  @keyframes senseBurst{0%{opacity:0;transform:translate(-50%,-50%) scaleX(0)}24%{opacity:1}100%{opacity:.82;transform:translate(-50%,-50%) scaleX(1)}}
+  @keyframes senseGoldWash{0%{opacity:0;transform:scale(.08)}34%{opacity:.88}100%{opacity:1;transform:scale(1.35)}}
+  @keyframes sensePaperLeft{0%{opacity:0;transform:translateX(0) rotateY(0)}18%{opacity:.86}100%{opacity:.34;transform:translateX(-96%) rotateY(-12deg)}}
+  @keyframes sensePaperRight{0%{opacity:0;transform:translateX(0) rotateY(0)}18%{opacity:.86}100%{opacity:.34;transform:translateX(96%) rotateY(12deg)}}
+  @keyframes senseCardReveal{0%{opacity:0;transform:translate(-50%,-46%) scale(.82);filter:blur(8px)}100%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}}
+  @keyframes senseHintIn{to{opacity:1}}
+}
+@media (prefers-reduced-motion:reduce){
+  html.beast-sensing-preview .beast-sensing-overlay *{animation-duration:.01ms!important;animation-delay:0s!important}
+}
+</style>
+
+<button class="beast-sensing-launcher" id="beastSensingLauncher" type="button" aria-haspopup="dialog" aria-controls="beastSensingOverlay">
+  <span class="beast-sensing-orb" aria-hidden="true"><img src="assets/release/sensing/golden-orb.png" alt=""></span>
+  <strong>神獸感應！</strong>
+</button>
+<section class="beast-sensing-overlay" id="beastSensingOverlay" role="dialog" aria-modal="true" aria-label="神獸感應抽卡動畫" aria-hidden="true">
+  <div class="beast-sensing-stage">
+    <svg class="beast-sensing-landscape" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path class="sense-mountain" pathLength="1" d="M0 536 C86 505 150 487 212 474 L278 422 L326 248 L363 218 L397 257 L418 350 L461 411 L511 378 L548 292 L582 330 L608 422 C664 405 716 392 772 420"/>
+      <path class="sense-mountain sense-mountain-detail" pathLength="1" d="M217 474 C257 449 283 418 303 374 M326 248 L346 330 L365 306 L397 257 M418 350 L390 392 L369 430 M511 378 L538 355 L548 292 M582 330 L567 387 L608 422"/>
+      <path class="sense-mountain" pathLength="1" d="M1600 536 C1514 505 1450 487 1388 474 L1322 422 L1274 248 L1237 218 L1203 257 L1182 350 L1139 411 L1089 378 L1052 292 L1018 330 L992 422 C936 405 884 392 828 420"/>
+      <path class="sense-mountain sense-mountain-detail" pathLength="1" d="M1383 474 C1343 449 1317 418 1297 374 M1274 248 L1254 330 L1235 306 L1203 257 M1182 350 L1210 392 L1231 430 M1089 378 L1062 355 L1052 292 M1018 330 L1033 387 L992 422"/>
+      <path class="sense-mountain" pathLength="1" d="M0 431 C90 392 152 377 216 390 L252 348 L278 374 L309 420 M1291 420 L1322 374 L1348 348 L1384 390 C1448 377 1510 392 1600 431"/>
+      <path class="sense-mist" pathLength="1" d="M0 566 C118 520 213 527 291 560 C342 582 389 580 415 554 C438 531 426 510 398 510 C372 510 357 530 369 545 C386 566 435 547 478 520 C570 463 650 463 761 498"/>
+      <path class="sense-mist" pathLength="1" d="M1600 566 C1482 520 1387 527 1309 560 C1258 582 1211 580 1185 554 C1162 531 1174 510 1202 510 C1228 510 1243 530 1231 545 C1214 566 1165 547 1122 520 C1030 463 950 463 839 498"/>
+      <path class="sense-mist" pathLength="1" d="M0 648 C106 610 187 615 252 650 C304 678 357 674 387 646 C408 626 397 607 375 608 C350 609 338 628 350 641 C369 661 411 644 450 617 C546 552 645 546 753 570"/>
+      <path class="sense-mist" pathLength="1" d="M1600 648 C1494 610 1413 615 1348 650 C1296 678 1243 674 1213 646 C1192 626 1203 607 1225 608 C1250 609 1262 628 1250 641 C1231 661 1189 644 1150 617 C1054 552 955 546 847 570"/>
+      <path class="sense-water" pathLength="1" d="M0 730 C166 683 319 735 446 708 C557 684 636 621 759 628"/>
+      <path class="sense-water" pathLength="1" d="M1600 730 C1434 683 1281 735 1154 708 C1043 684 964 621 841 628"/>
+      <path class="sense-water" pathLength="1" d="M0 805 C196 765 361 816 520 778 C617 755 690 703 767 691"/>
+      <path class="sense-water" pathLength="1" d="M1600 805 C1404 765 1239 816 1080 778 C983 755 910 703 833 691"/>
+    </svg>
+    <div class="beast-sensing-beam" aria-hidden="true"></div>
+    <div class="beast-sensing-seed-wrap" aria-hidden="true">
+      <i class="beast-sensing-seed-glow"></i>
+      <img class="beast-sensing-seed-image" src="assets/release/sensing/golden-orb.png" alt="">
+      <img class="beast-sensing-shell beast-sensing-shell-left" src="assets/release/sensing/golden-orb.png" alt="">
+      <img class="beast-sensing-shell beast-sensing-shell-right" src="assets/release/sensing/golden-orb.png" alt="">
+      <svg class="beast-sensing-cracks" viewBox="0 0 100 100" aria-hidden="true">
+        <path pathLength="1" d="M50 49 L43 38 L46 30 L38 20 M48 46 L36 48 L28 42 L18 45 M51 50 L58 39 L56 30 L65 22 M53 52 L64 55 L72 49 L83 53 M50 53 L46 64 L51 71 L47 83 M54 55 L60 66 L58 77 L67 86"/>
+      </svg>
+    </div>
+    <div class="beast-sensing-burst" aria-hidden="true"></div>
+    <div class="beast-sensing-goldwash" aria-hidden="true"></div>
+    <div class="beast-sensing-paper beast-sensing-paper-left" aria-hidden="true"></div>
+    <div class="beast-sensing-paper beast-sensing-paper-right" aria-hidden="true"></div>
+    <article class="beast-sensing-card" aria-label="人際百鬼記守卷神獸白澤">
+      <div class="beast-sensing-result-art"><img src="assets/release/sensing/baize.png" alt="白澤"></div>
+      <div class="beast-sensing-result-copy">
+        <span>人 際 百 鬼 記</span>
+        <h2>｜白 澤｜</h2>
+        <p>守 護 看 盡 人 心 百 態 的 你</p>
+      </div>
+    </article>
+    <p class="beast-sensing-exit">點擊畫面任一處返回</p>
+  </div>
+</section>
+<script id="v054-beast-sensing-preview-script">
+(function(){
+  const params=new URLSearchParams(location.search);
+  if(params.get('preview')!=='beast-sensing-v1') return;
+  document.documentElement.classList.add('beast-sensing-preview');
+  const launcher=document.querySelector('#beastSensingLauncher');
+  const overlay=document.querySelector('#beastSensingOverlay');
+  if(!launcher||!overlay) return;
+  let cardTimer=0;
+  let savedScrollY=0;
+  let readyToExit=false;
+  const lockPage=()=>{
+    savedScrollY=window.scrollY;
+    document.documentElement.style.overflow='hidden';
+  };
+  const unlockPage=()=>{
+    document.documentElement.style.overflow='';
+    window.scrollTo({top:savedScrollY,left:0,behavior:'auto'});
+  };
+  const open=()=>{
+    clearTimeout(cardTimer);
+    readyToExit=false;
+    lockPage();
+    overlay.classList.remove('is-running','is-card');
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden','false');
+    void overlay.offsetWidth;
+    overlay.classList.add('is-running');
+    cardTimer=window.setTimeout(()=>{
+      overlay.classList.add('is-card');
+      readyToExit=true;
+      overlay.focus({preventScroll:true});
+    },4300);
+  };
+  const close=()=>{
+    if(!readyToExit) return;
+    clearTimeout(cardTimer);
+    overlay.classList.remove('is-open','is-running','is-card');
+    overlay.setAttribute('aria-hidden','true');
+    readyToExit=false;
+    unlockPage();
+    launcher.focus({preventScroll:true});
+  };
+  launcher.addEventListener('click',open);
+  overlay.addEventListener('click',close);
+  overlay.addEventListener('keydown',event=>{
+    if((event.key==='Escape'||event.key==='Enter'||event.key===' ')&&readyToExit){event.preventDefault();close()}
+  });
+  overlay.tabIndex=-1;
+})();
+</script>
+
+<style id="v057-mobile-continuity-and-sensing-assets">
+/* 手機故事沿用桌機的重疊淡接，保留每一頁的滿版閱讀距離。 */
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  .story{background:#050909!important}
+  .intro + .story-scene,
+  .story-scene + .story-scene{
+    margin-top:-20dvh!important;
+  }
+  .story .story-scene,
+  .story-scene,
+  .story-scene:last-of-type{
+    height:120dvh!important;
+    min-height:120dvh!important;
+    max-height:120dvh!important;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 16.667%,#000 100%)!important;
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 16.667%,#000 100%)!important;
+  }
+  .story-scene::after,
+  .story-scene:last-of-type::after{
+    background:linear-gradient(180deg,rgba(3,7,8,.08),transparent 24%,transparent 78%,rgba(5,9,9,.28) 100%)!important;
+  }
+
+  /* 八記改為上下兩區：文字與卷軸皆水平置中，卷軸永遠完整留在畫面內。 */
+  #themes{
+    display:grid!important;
+    grid-template-rows:clamp(170px,28dvh,220px) minmax(0,1fr)!important;
+    padding:0!important;
+  }
+  #themes .theme-header{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    padding:calc(env(safe-area-inset-top,0px) + 24px) var(--mobile-safe-x) 13px!important;
+    text-align:center!important;
+    overflow:hidden!important;
+  }
+  #themes .theme-header>div,
+  #themes .theme-header h2,
+  #themes .theme-header p{width:100%!important;text-align:center!important}
+  #themes .theme-header .kicker{padding-left:0!important}
+  #themes .theme-header p{max-width:34em!important;margin-inline:auto!important}
+  #themes .theme-carousel-viewport{
+    position:relative!important;
+    display:block!important;
+    height:100%!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:hidden!important;
+  }
+  #themes .theme-panels{position:absolute!important;inset:0!important;height:auto!important}
+  #themes .theme{
+    top:50%!important;
+    width:clamp(92px,29vw,128px)!important;
+    transform:translate3d(calc(-50% + var(--carousel-x)),-50%,0) scale(var(--carousel-scale))!important;
+    transform-origin:center!important;
+  }
+}
+@media (max-width:900px) and (max-height:650px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (max-height:650px){
+  #themes{grid-template-rows:clamp(158px,30dvh,178px) minmax(0,1fr)!important}
+  #themes .theme{width:clamp(78px,24vw,94px)!important}
+}
+
+/* 金球按鈕改用正式素材。 */
+html.beast-sensing-preview .beast-sensing-launcher{
+  right:max(24px,env(safe-area-inset-right,0px))!important;
+  bottom:max(25px,env(safe-area-inset-bottom,0px))!important;
+}
+.beast-sensing-launcher::before{
+  inset:-14px -8px -12px!important;
+  background:radial-gradient(circle at 50% 38%,rgba(20,15,8,.76),rgba(4,7,7,.24) 57%,transparent 74%)!important;
+}
+.beast-sensing-orb{
+  width:78px!important;height:78px!important;overflow:visible!important;
+  border:0!important;background:none!important;box-shadow:none!important;
+}
+.beast-sensing-orb::before,.beast-sensing-orb::after{display:none!important}
+.beast-sensing-orb img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 10px rgba(255,194,69,.34))}
+.beast-sensing-launcher:hover .beast-sensing-orb{border:0!important;box-shadow:none!important}
+.beast-sensing-launcher:hover .beast-sensing-orb img{filter:brightness(1.07) drop-shadow(0 0 17px rgba(255,201,79,.52))}
+
+/* 感應動畫：黑幕、懸浮金球、內部聚光、全幅白光，再顯現白澤。 */
+.beast-sensing-landscape,
+.beast-sensing-paper,
+.beast-sensing-goldwash{display:none!important}
+.beast-sensing-stage{background:#000!important}
+.beast-sensing-stage::before{
+  inset:0!important;opacity:1!important;transform:none!important;
+  background:radial-gradient(circle at 50% 50%,rgba(230,169,54,.18),rgba(149,89,18,.08) 16%,transparent 38%)!important;
+  animation:none!important;
+}
+.beast-sensing-seed-wrap{
+  width:clamp(150px,19vw,236px)!important;height:clamp(150px,19vw,236px)!important;
+  opacity:0;transform:translate(-50%,-50%) scale(.88);
+}
+.beast-sensing-seed-image{
+  position:relative;z-index:2;display:block;width:100%;height:100%;object-fit:contain;
+  filter:brightness(.92) drop-shadow(0 0 16px rgba(240,172,46,.27));
+}
+.beast-sensing-shell{
+  position:absolute;z-index:3;inset:0;display:block;width:100%;height:100%;object-fit:contain;
+  opacity:0;pointer-events:none;
+}
+.beast-sensing-shell-left{clip-path:polygon(0 0,53% 0,47% 31%,54% 49%,47% 68%,52% 100%,0 100%)}
+.beast-sensing-shell-right{clip-path:polygon(53% 0,100% 0,100% 100%,52% 100%,47% 68%,54% 49%,47% 31%)}
+.beast-sensing-cracks{
+  position:absolute;z-index:5;left:50%;top:50%;width:68%;height:68%;overflow:visible;
+  transform:translate(-50%,-50%);filter:drop-shadow(0 0 4px #fff4bd) drop-shadow(0 0 10px rgba(255,199,76,.9));
+  pointer-events:none;
+}
+.beast-sensing-cracks path{
+  fill:none;stroke:#fffbe4;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:1;stroke-dashoffset:1;opacity:0;
+}
+.beast-sensing-seed-glow{
+  z-index:1!important;width:165%!important;height:165%!important;
+  background:radial-gradient(circle,rgba(255,220,120,.34),rgba(216,145,34,.14) 31%,transparent 69%)!important;
+  filter:blur(12px)!important;animation:senseOrbHalo 2.4s ease-in-out infinite!important;
+}
+.beast-sensing-seed-wrap::before,
+.beast-sensing-seed-wrap::after{
+  content:"";position:absolute;z-index:0;inset:-18%;border:1px solid rgba(236,189,91,.24);border-radius:50%;
+  opacity:0;transform:scale(.82);
+}
+.beast-sensing-seed-wrap::after{inset:-34%;border-color:rgba(236,189,91,.12)}
+.beast-sensing-overlay.is-running .beast-sensing-seed-wrap{
+  animation:senseOrbAwaken 3.72s cubic-bezier(.2,.72,.2,1) .15s forwards!important;
+}
+.beast-sensing-overlay.is-running .beast-sensing-seed-image{animation:senseWholeOrbYield .92s ease 3s forwards}
+.beast-sensing-overlay.is-running .beast-sensing-shell-left{animation:senseShellLeft 1.12s cubic-bezier(.18,.78,.22,1) 3.02s forwards}
+.beast-sensing-overlay.is-running .beast-sensing-shell-right{animation:senseShellRight 1.12s cubic-bezier(.18,.78,.22,1) 3.02s forwards}
+.beast-sensing-overlay.is-running .beast-sensing-cracks path{animation:senseCrackDraw .88s cubic-bezier(.25,.7,.2,1) 2.38s forwards}
+.beast-sensing-overlay.is-running .beast-sensing-seed-wrap::before{animation:senseRingRespond 2.15s ease-in-out 1.05s both}
+.beast-sensing-overlay.is-running .beast-sensing-seed-wrap::after{animation:senseRingRespond 2.15s ease-in-out 1.38s both}
+.beast-sensing-beam{
+  top:50%!important;left:50%!important;width:3px!important;height:76vh!important;z-index:4!important;
+  opacity:0;transform:translate(-50%,-50%) scaleY(.04);
+  background:linear-gradient(180deg,transparent,#fff7d0 43%,#fff 50%,#fff7d0 57%,transparent)!important;
+  box-shadow:0 0 14px #fff2bb,0 0 44px rgba(255,210,111,.78)!important;
+}
+.beast-sensing-overlay.is-running .beast-sensing-beam{animation:senseCoreBeam .72s ease 3.08s forwards!important}
+.beast-sensing-burst{
+  inset:0!important;left:0!important;top:0!important;width:auto!important;height:auto!important;z-index:8!important;
+  border-radius:0!important;opacity:0;transform:none;
+  background:radial-gradient(circle at 50% 50%,#fff 0 4%,#fffdf3 13%,rgba(255,240,181,.96) 26%,rgba(255,222,132,.48) 44%,transparent 68%)!important;
+  box-shadow:none!important;pointer-events:none!important;
+}
+.beast-sensing-overlay.is-running .beast-sensing-burst{animation:senseWhiteTransition 1.35s cubic-bezier(.2,.72,.18,1) 3.35s forwards!important}
+
+.beast-sensing-card{
+  width:min(430px,54vw)!important;height:min(78vh,760px)!important;aspect-ratio:auto!important;
+  padding:clamp(30px,4vh,46px) clamp(26px,3.5vw,44px)!important;
+  display:grid!important;grid-template-rows:minmax(0,1.2fr) auto!important;align-items:center!important;
+  color:#fff8e8!important;border:1px solid rgba(229,190,108,.48)!important;border-radius:26px!important;
+  background:
+    radial-gradient(circle at 50% 30%,rgba(224,163,78,.22),transparent 38%),
+    linear-gradient(180deg,#77736c,#56534f)!important;
+  box-shadow:0 0 0 1px rgba(255,243,205,.1),0 28px 90px rgba(0,0,0,.58),inset 0 0 70px rgba(14,12,10,.18)!important;
+}
+.beast-sensing-card::before{inset:15px!important;border-color:rgba(245,213,146,.25)!important;border-radius:18px!important}
+.beast-sensing-card::after{display:none!important}
+.beast-sensing-result-art{align-self:end;width:100%;height:100%;display:grid;place-items:end center;overflow:visible}
+.beast-sensing-result-art img{display:block;width:112%;max-height:100%;object-fit:contain;filter:drop-shadow(0 18px 26px rgba(24,13,4,.25))}
+.beast-sensing-result-copy{align-self:start;width:100%;padding:10px 0 6px;text-align:center;text-shadow:0 2px 12px rgba(0,0,0,.32)}
+.beast-sensing-result-copy span{font-size:clamp(12px,1.1vw,16px);letter-spacing:.48em}
+.beast-sensing-result-copy h2{margin:10px 0 12px;font-family:var(--display-font);font-size:clamp(42px,4.2vw,64px);font-weight:400;letter-spacing:.2em}
+.beast-sensing-result-copy p{margin:0;font-size:clamp(12px,1vw,15px);letter-spacing:.42em;color:#f8eed6}
+.beast-sensing-overlay.is-card .beast-sensing-card{animation:senseBeastReveal 1.05s cubic-bezier(.16,.84,.2,1) forwards!important}
+.beast-sensing-exit{color:rgba(255,246,220,.72)!important;text-shadow:0 1px 8px #000}
+
+@keyframes senseOrbHalo{0%,100%{opacity:.38;transform:scale(.92)}50%{opacity:.78;transform:scale(1.08)}}
+@keyframes senseOrbAwaken{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.88);filter:brightness(.8)}
+  12%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:brightness(.95)}
+  29%{opacity:1;transform:translate(calc(-50% - 13px),-50%) rotate(-2deg) scale(1)}
+  46%{transform:translate(calc(-50% + 14px),-50%) rotate(2.2deg) scale(1.01)}
+  61%{transform:translate(calc(-50% - 8px),-50%) rotate(-1.2deg) scale(1.01)}
+  73%{transform:translate(-50%,-50%) rotate(0) scale(1.02);filter:brightness(1.05)}
+  88%{opacity:1;transform:translate(-50%,-50%) scale(1.07);filter:brightness(1.65)}
+  100%{opacity:1;transform:translate(-50%,-50%) scale(1.12);filter:brightness(2.15)}
+}
+@keyframes senseRingRespond{0%{opacity:0;transform:scale(.82)}42%{opacity:.58}100%{opacity:0;transform:scale(1.13)}}
+@keyframes senseCrackDraw{0%{opacity:0;stroke-dashoffset:1}18%{opacity:1}100%{opacity:1;stroke-dashoffset:0}}
+@keyframes senseWholeOrbYield{0%,30%{opacity:1}100%{opacity:0;filter:brightness(2.4) drop-shadow(0 0 24px #fff0a6)}}
+@keyframes senseShellLeft{0%{opacity:0;transform:translateX(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateX(-82px) translateY(-5px) rotate(-9deg) scale(.96)}}
+@keyframes senseShellRight{0%{opacity:0;transform:translateX(0) rotate(0)}10%{opacity:1}100%{opacity:0;transform:translateX(82px) translateY(5px) rotate(9deg) scale(.96)}}
+@keyframes senseCoreBeam{0%{opacity:0;transform:translate(-50%,-50%) scaleY(.04)}45%{opacity:1}100%{opacity:.92;transform:translate(-50%,-50%) scaleY(1)}}
+@keyframes senseWhiteTransition{0%{opacity:0;transform:scale(.05)}36%{opacity:1;transform:scale(1)}66%{opacity:1;background:#fff}100%{opacity:0;background:#fff;transform:scale(1.18)}}
+@keyframes senseBeastReveal{0%{opacity:0;transform:translate(-50%,-46%) scale(.9);filter:blur(10px)}100%{opacity:1;transform:translate(-50%,-50%) scale(1);filter:blur(0)}}
+
+@media (max-width:700px){
+  html.beast-sensing-preview .beast-sensing-launcher{right:17px!important;bottom:max(18px,env(safe-area-inset-bottom,0px))!important;transform:scale(.88);transform-origin:right bottom}
+  .beast-sensing-card{width:calc(100vw - 38px)!important;height:calc(100dvh - 54px)!important;padding:30px 22px 32px!important;border-radius:23px!important}
+  .beast-sensing-result-art img{width:116%}
+  .beast-sensing-result-copy h2{font-size:clamp(38px,13vw,54px)}
+  .beast-sensing-result-copy p{font-size:11px;letter-spacing:.3em}
+}
+</style>
+
+<style id="v058-mobile-story-and-theme-alignment">
+/* 手機八記以完整視窗為置中基準；不再被桌機式捲軸寬度推向左側。 */
+@media (max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse){
+  html.story-programmatic-scroll{
+    scroll-snap-type:none!important;
+  }
+  .story-scene{
+    scroll-snap-align:center!important;
+  }
+  #themes{
+    width:100vw!important;
+    margin-left:0!important;
+  }
+  #themes .theme-header{
+    width:100vw!important;
+    align-self:stretch!important;
+    margin:0!important;
+  }
+  #themes .theme-header>div,
+  #themes .theme-header h2,
+  #themes .theme-header p{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:none!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  #themes .theme-header p{
+    max-width:min(34em,calc(100vw - 48px))!important;
+  }
+  body.menu-collapsed #themes .theme-header .kicker,
+  body:not(.menu-collapsed) #themes .theme-header .kicker{
+    padding-left:0!important;
+    padding-right:0!important;
+    transform:none!important;
+    text-align:center!important;
+  }
+
+  /* 寶匣／惑種為共同中心；標題、主圖與對話依同一段自適應留白排列。 */
+  .story-scene[data-dialogue-page="2"],
+  .story-scene[data-dialogue-page="3"]{
+    --story-art-size:clamp(140px,24dvh,240px);
+    --story-stack-gap:clamp(14px,2.8dvh,26px);
+  }
+  .story-scene[data-dialogue-page="2"] .copy,
+  .story-scene[data-dialogue-page="3"] .copy{
+    top:calc(50% - var(--story-art-size)/2 - var(--story-stack-gap))!important;
+    transform:translate(-50%,-100%)!important;
+  }
+  .origin-treasure,
+  .huozhong-visual{
+    top:50%!important;
+    width:var(--story-art-size)!important;
+    animation:storyArtFloatMobile 4s ease-in-out infinite!important;
+  }
+  @keyframes storyArtFloatMobile{
+    0%,100%{transform:translate(-50%,-50%) translateY(-3px)}
+    50%{transform:translate(-50%,-50%) translateY(3px)}
+  }
+  .story-scene[data-dialogue-page="2"] .dialogue-layer,
+  .story-scene[data-dialogue-page="3"] .dialogue-layer{
+    bottom:auto!important;
+    transform:translateX(-50%)!important;
+  }
+  .story-scene[data-dialogue-page="2"] .dialogue-layer:has(.dialogue-box[data-role="narrator"]),
+  .story-scene[data-dialogue-page="3"] .dialogue-layer:has(.dialogue-box[data-role="narrator"]){
+    top:calc(50% + var(--story-art-size)/2 + var(--story-stack-gap))!important;
+  }
+  .story-scene[data-dialogue-page="2"] .dialogue-layer:has(.dialogue-box[data-role="jintong"]),
+  .story-scene[data-dialogue-page="3"] .dialogue-layer:has(.dialogue-box[data-role="jintong"]){
+    top:calc(50% + var(--story-art-size)/2 + var(--story-stack-gap) + 77px)!important;
+  }
+  /* 卷軸內頁的守卷神獸以整個手機螢幕為中心，不再貼近上半部。 */
+  #detail .detail-hero{
+    top:calc(50dvh - 56px)!important;
+  }
+}
+
+/* 較矮手機再略收主圖，保留標題與台詞之間的安全間距。 */
+@media (max-width:900px) and (max-height:650px),
+       (max-width:1400px) and (hover:none) and (pointer:coarse) and (max-height:650px){
+  .story-scene[data-dialogue-page="2"],
+  .story-scene[data-dialogue-page="3"]{
+    --story-art-size:clamp(132px,23dvh,170px);
+    --story-stack-gap:clamp(12px,2.6dvh,17px);
+  }
+}
+</style>
 
 </body>
 </html>
