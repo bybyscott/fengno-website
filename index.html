@@ -7780,5 +7780,14 @@ html,html.story-programmatic-scroll{scroll-snap-type:none!important}
 .intro,.story .story-scene,.story-scene,#themes,.service-selector,.form-preview{scroll-snap-align:none!important;scroll-snap-stop:normal!important}
 }
 </style>
+<style id="v060-sensing-registration-position">
+html.beast-sensing-preview:has(.form-preview.is-current) .beast-sensing-launcher{
+bottom:calc(clamp(18px,3vw,44px) + 48px + 22px)!important;
+right:max(12px,calc(clamp(18px,3vw,44px) - 32px))!important;
+}
+@media(max-width:900px),(max-width:1400px) and (hover:none) and (pointer:coarse){
+html.beast-sensing-preview:has(.form-preview.is-current) .beast-sensing-launcher{bottom:calc(max(18px,env(safe-area-inset-bottom,0px)) + 48px + 24px)!important;right:0px!important}
+}
+</style>
 </body>
 </html>
