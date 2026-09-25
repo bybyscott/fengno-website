@@ -7471,13 +7471,13 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
 <script id="v054-beast-sensing-preview-script">
 (()=>{
  if(new URLSearchParams(location.search).get('preview')!=='beast-sensing-v1')return;
- document.documentElement.classList.add('beast-sensing-preview');
  const launcher=document.getElementById('beastSensingLauncher'),overlay=document.getElementById('beastSensingOverlay');
  if(!launcher||!overlay)return;
- overlay.replaceChildren();let frame=null,savedY=0,savedOverflow='';
- const close=()=>{if(!frame)return;frame.remove();frame=null;overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');document.documentElement.style.overflow=savedOverflow;window.scrollTo({top:savedY,behavior:'instant'});launcher.focus({preventScroll:true})};
- launcher.addEventListener('click',()=>{if(frame)return;savedY=scrollY;savedOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';frame=document.createElement('iframe');frame.title='白澤神獸感應動畫';frame.src='beast-sensing.html?embedded=1';frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#050706';overlay.append(frame);overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');frame.addEventListener('load',()=>frame?.contentWindow?.focus(),{once:true})});
- window.addEventListener('message',event=>{if(frame&&event.origin===location.origin&&event.source===frame.contentWindow&&event.data?.type==='feng:sensing-close')close()});
+ overlay.replaceChildren();let savedY=0,savedOverflow='',opened=false,ready=false;
+ const frame=document.createElement('iframe');frame.title='白澤神獸感應動畫';frame.src='beast-sensing.html?embedded=1&preload=1';frame.tabIndex=-1;frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#050706';overlay.append(frame);
+ const close=()=>{if(!opened)return;opened=false;overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');frame.contentWindow.sensingReset();document.documentElement.style.overflow=savedOverflow;window.scrollTo({top:savedY,behavior:'instant'});launcher.focus({preventScroll:true})};
+ launcher.addEventListener('click',()=>{if(opened||!ready)return;opened=true;savedY=scrollY;savedOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');frame.contentWindow.sensingPlay();frame.contentWindow.focus()});
+ window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==frame.contentWindow)return;if(event.data?.type==='feng:sensing-ready'){ready=true;document.documentElement.classList.add('beast-sensing-preview')}if(event.data?.type==='feng:sensing-close')close()});
 })();
 </script>
 
@@ -7789,5 +7789,6 @@ right:max(12px,calc(clamp(18px,3vw,44px) - 32px))!important;
 html.beast-sensing-preview:has(.form-preview.is-current) .beast-sensing-launcher{bottom:calc(max(18px,env(safe-area-inset-bottom,0px)) + 48px + 24px)!important;right:0px!important}
 }
 </style>
+<style id="v061-instant-sensing">html.beast-sensing-preview .beast-sensing-overlay{transition:none!important}</style>
 </body>
 </html>

@@ -68,7 +68,7 @@ main:not(.play) .reveal,main:not(.play) .copy{opacity:0}
 .play .particle{animation:dust 2s calc(4.05s + var(--delay)) both}
 .play .breathing{animation:breathe 4.8s ease-in-out 5.7s infinite}
 .play .breathing .dialogue{animation:caption .7s 5.1s both}
-@keyframes ritualOrb{0%{opacity:0;transform:translate(-50%,-50%) scale(.9);animation-timing-function:ease-out}12%{opacity:1;transform:translate(-50%,-50%) scale(1)}24%{transform:translate(-56%,-50%) rotate(-5deg);animation-timing-function:ease-in-out}35%{transform:translate(-44%,-50%) rotate(5deg);animation-timing-function:ease-in-out}43%{transform:translate(-50%,-50%) rotate(0);animation-timing-function:ease-in-out}68%{transform:translate(-50%,-50%) scale(1);animation-timing-function:cubic-bezier(.4,0,.6,1)}84%{opacity:1;transform:translate(-50%,-50%) scale(.68);animation-timing-function:cubic-bezier(.16,.7,.2,1)}97%{opacity:1;transform:translate(-50%,-50%) scale(1.7)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.1)}}
+@keyframes ritualOrb{0%{opacity:1;transform:translate(-50%,-50%) scale(1);animation-timing-function:ease-in-out}12%{opacity:1;transform:translate(-54%,-50%) rotate(-3deg) scale(1)}24%{transform:translate(-56%,-50%) rotate(-5deg);animation-timing-function:ease-in-out}35%{transform:translate(-44%,-50%) rotate(5deg);animation-timing-function:ease-in-out}43%{transform:translate(-50%,-50%) rotate(0);animation-timing-function:ease-in-out}68%{transform:translate(-50%,-50%) scale(1);animation-timing-function:cubic-bezier(.4,0,.6,1)}84%{opacity:1;transform:translate(-50%,-50%) scale(.68);animation-timing-function:cubic-bezier(.16,.7,.2,1)}97%{opacity:1;transform:translate(-50%,-50%) scale(1.7)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.1)}}
 @keyframes ritualRays{0%{opacity:0;transform:scale(.22) rotate(-6deg);animation-timing-function:ease-out}45%{opacity:1;transform:scale(.95) rotate(0);animation-timing-function:ease-in-out}73%{opacity:1;transform:scale(.65) rotate(2deg);animation-timing-function:cubic-bezier(.16,.7,.2,1)}100%{opacity:1;transform:scale(1.65) rotate(5deg)}}
 @keyframes ritualHalo{0%{opacity:0;transform:scale(.5)}45%{opacity:.9;transform:scale(1.1)}73%{opacity:1;transform:scale(.72)}100%{opacity:1;transform:scale(1.6)}}
 @keyframes breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
@@ -88,5 +88,9 @@ scene.addEventListener('click',e=>{if(e.target.closest('button'))return;returnTo
 document.addEventListener('keydown',e=>{if(readyToReturn && ['Escape','Enter',' '].includes(e.key)){e.preventDefault();returnToStart()}});
 document.getElementById('replay').onclick=replay;document.getElementById('still').onclick=()=>{scene.getAnimations({subtree:true}).forEach(a=>a.finish())};
 // Begin directly on entry; local fonts and embedded assets continue loading without an extra start step.
-requestAnimationFrame(replay);
+window.sensingPlay=replay;
+window.sensingReset=()=>{clearTimeout(returnTimer);readyToReturn=false;scene.classList.remove('play')};
+if(new URLSearchParams(location.search).has('preload')){
+ Promise.all([document.fonts.ready,...[...document.images].map(img=>img.decode().catch(()=>{}))]).then(()=>{window.parent.postMessage({type:'feng:sensing-ready'},location.origin)});
+}else{requestAnimationFrame(replay)}
 </script></html>
