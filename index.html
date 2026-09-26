@@ -7830,5 +7830,11 @@ html.sensing-active .beast-sensing-launcher .beast-sensing-orb img{animation-pla
 <style id="v066-home-caption-two-pixels">
 .intro-copy .hook-purpose,.intro-copy .micro,.intro-copy::before{translate:2px 0}
 </style>
+<style id="v067-dialogue-group-centering">
+@media(min-width:901px) and (hover:hover) and (pointer:fine){
+.story-scene .dialogue-layer{left:calc(50% - var(--nav) / 2)!important;box-sizing:content-box!important;width:max-content!important;padding-left:0!important;padding-right:0!important}
+.story-scene .dialogue-layer:has(.dialogue-box[data-role="jintong"]){padding-left:calc(clamp(73px,7.92vw,92px) - 25px)!important}
+}
+</style>
 </body>
 </html>
