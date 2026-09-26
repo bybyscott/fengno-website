@@ -1,0 +1,28 @@
+{
+  "headers": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "query",
+          "key": "preview"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, follow"
+        }
+      ]
+    },
+    {
+      "source": "/beast-sensing.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}
