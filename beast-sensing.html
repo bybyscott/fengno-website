@@ -111,7 +111,7 @@ document.addEventListener('keydown',e=>{if(readyToReturn && ['Escape','Enter',' 
 document.getElementById('replay').onclick=replay;document.getElementById('still').onclick=()=>{scene.getAnimations({subtree:true}).forEach(a=>a.finish())};
 // Begin directly on entry; local fonts and embedded assets continue loading without an extra start step.
 
-// Synthesized ritual accents: soft sway, gathering air, burst, and a bell chord.
+// Synthesized ritual accents: energy gathering and entrance bells only.
 let soundContext=null,soundBus=null,soundNodes=[];
 function stopSensingSound(){for(const node of soundNodes){try{node.stop()}catch{}}soundNodes=[];if(soundBus){soundBus.disconnect();soundBus=null}}
 function playSensingSound(){
@@ -121,9 +121,9 @@ function playSensingSound(){
  const schedule=()=>{if(!scene.classList.contains('play'))return;const t=ctx.currentTime+.015;const master=ctx.createGain();master.gain.value=.32;master.connect(ctx.destination);soundBus=master;
  const tone=(delay,freq,duration,volume,type='sine',endFreq=freq)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type=type;osc.frequency.setValueAtTime(freq,t+delay);osc.frequency.exponentialRampToValueAtTime(endFreq,t+delay+duration);gain.gain.setValueAtTime(0,t+delay);gain.gain.linearRampToValueAtTime(volume,t+delay+.025);gain.gain.exponentialRampToValueAtTime(.0001,t+delay+duration);osc.connect(gain);gain.connect(master);osc.start(t+delay);osc.stop(t+delay+duration+.02);soundNodes.push(osc)};
  const air=(delay,duration,volume,startFreq,endFreq)=>{const n=Math.ceil(ctx.sampleRate*duration),buffer=ctx.createBuffer(1,n,ctx.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<n;i++)data[i]=Math.random()*2-1;const source=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();source.buffer=buffer;filter.type='bandpass';filter.Q.value=.7;filter.frequency.setValueAtTime(startFreq,t+delay);filter.frequency.exponentialRampToValueAtTime(endFreq,t+delay+duration);gain.gain.setValueAtTime(0,t+delay);gain.gain.linearRampToValueAtTime(volume,t+delay+duration*.55);gain.gain.exponentialRampToValueAtTime(.0001,t+delay+duration);source.connect(filter);filter.connect(gain);gain.connect(master);source.start(t+delay);source.stop(t+delay+duration);soundNodes.push(source)};
- air(.55,.42,.12,500,850);air(1.05,.42,.1,850,450);
+ 
  air(1.8,1.7,.2,400,2100);tone(1.85,220,1.55,.075,'sine',660);
- tone(3.05,440,.5,.08,'sine',180);air(3.52,.85,.35,550,4200);tone(3.8,100,.65,.16,'sine',55);
+ 
  [523.25,659.25,783.99,1046.5].forEach((f,i)=>{tone(4.1+i*.095,f,1.65,.105);tone(4.1+i*.095,f*2.76,.65,.018)});
  };if(ctx.state==='suspended'){ctx.resume().then(schedule).catch(()=>{})}else schedule();
  }catch{/* Audio availability must never prevent animation playback. */}
