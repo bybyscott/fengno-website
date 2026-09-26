@@ -3361,13 +3361,14 @@ if(themePanelsEl){
 
   window.FENG_DIALOGUE_API={
     wheel(direction=1){ return moveStoryByWheel(direction>=0?1:-1); },
-    reset(){
+    reset(options={}){
       activeIndex=0;
       observedDialogueIndex=-1;
       state.forEach(s=>{s.line=0;});
       setOriginTreasure(false);
       setHuozhongState(false);
       scenes.forEach((scene,i)=>{scene.classList.remove('dialogue-complete','current-dialogue','dialogue-hint-dismissed');renderPage(i);});
+      if(options.scroll===false) return;
       document.querySelector('#story')?.scrollIntoView({behavior:window.matchMedia('(max-width:900px), (max-width:1400px) and (hover:none) and (pointer:coarse)').matches?'auto':'smooth',block:'start'});
     }
   };
@@ -4893,7 +4894,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   }
 
   document.addEventListener('visibilitychange',()=>document.hidden?stopAutoplay():startAutoplay());
-  window.addEventListener('resize',paintCarousel,{passive:true});
+  let carouselWidth=innerWidth;window.addEventListener('resize',()=>{if(innerWidth===carouselWidth)return;carouselWidth=innerWidth;paintCarousel()},{passive:true});
   mobile.addEventListener?.('change',syncMode);
   syncMode();
 })();
@@ -6878,7 +6879,13 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   }
   button.addEventListener('click',()=>{
     document.body.classList.add('menu-collapsed');
-    if(window.FENG_DIALOGUE_API){ window.FENG_DIALOGUE_API.reset(); return; }
+    if(window.FENG_DIALOGUE_API) window.FENG_DIALOGUE_API.reset({scroll:false});
+    const from=window.scrollY,start=performance.now();
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){window.scrollTo({top:0,behavior:'instant'});return}
+    let frame=0;
+    const cancel=()=>{cancelAnimationFrame(frame);window.removeEventListener('touchstart',cancel)};
+    const step=now=>{const p=Math.min(1,(now-start)/650);window.scrollTo(0,from*Math.pow(1-p,3));if(p<1)frame=requestAnimationFrame(step);else window.removeEventListener('touchstart',cancel)};
+    window.addEventListener('touchstart',cancel,{passive:true,once:true});frame=requestAnimationFrame(step);return;
     window.scrollTo({top:0,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   });
 })();
@@ -7052,7 +7059,7 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
   prev?.addEventListener('click',()=>showStep(activeStep-1,true));
   next?.addEventListener('click',()=>showStep(activeStep+1,true));
   dots.forEach(dot=>dot.addEventListener('click',()=>showStep(Number(dot.dataset.formStepDot),true)));
-  window.addEventListener('resize',syncStepHeight,{passive:true});
+  let stepWidth=innerWidth;window.addEventListener('resize',()=>{if(innerWidth===stepWidth)return;stepWidth=innerWidth;syncStepHeight()},{passive:true});
   document.fonts?.ready?.then(syncStepHeight);
   form.querySelectorAll('.jintong-form-guide img').forEach(img=>img.addEventListener('load',syncStepHeight,{once:true}));
   form.addEventListener('submit',()=>{
@@ -7906,5 +7913,22 @@ html.sensing-active .beast-sensing-launcher .beast-sensing-orb img{animation-pla
 #themes .theme-header>div,#themes .theme-header h2,#themes .theme-header p{min-width:0!important;max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere}
 }
 </style>
+<style id="v073-mobile-scroll-and-books-label">
+#themes .theme-header{position:relative!important;z-index:40!important}
+#themes .theme-header .kicker{position:relative!important;z-index:41!important;color:var(--gold)!important;opacity:1!important;filter:none!important;text-shadow:none!important}
+@media(min-width:901px) and (hover:hover) and (pointer:fine){#themes .theme-header .kicker{translate:0 10px}}
+@media(max-width:900px),(max-width:1400px) and (hover:none) and (pointer:coarse){
+.story-scene,.story .story-scene,.story-scene:last-of-type{height:120svh!important;min-height:120svh!important;max-height:120svh!important}
+.intro + .story-scene,.story-scene + .story-scene{margin-top:-20svh!important}
+#themes{height:100lvh!important;min-height:100lvh!important;grid-template-rows:auto minmax(0,calc(100svh - var(--books-head-height,180px) - env(safe-area-inset-bottom,0px)))!important;align-content:start!important;background:#000!important}
+#themes .theme-header{padding-top:calc(env(safe-area-inset-top,0px) + clamp(16px,3svh,28px))!important}
+#services,#form{height:100svh!important;min-height:100svh!important;max-height:none!important}
+.story,#themes,#services,#form{overscroll-behavior-y:auto!important}
+}
+@media(max-width:900px) and (min-height:780px),(max-width:1400px) and (hover:none) and (pointer:coarse) and (min-height:780px){#themes .theme-header{padding-top:calc(env(safe-area-inset-top,0px) + clamp(64px,11svh,130px))!important}}
+</style>
+<script id="v073-books-header-height">
+(()=>{const books=document.getElementById('themes'),head=books?.querySelector('.theme-header');if(!head)return;let pending=0;new ResizeObserver(()=>{if(pending)return;pending=requestAnimationFrame(()=>{pending=0;const value=head.getBoundingClientRect().height.toFixed(2)+'px';if(books.style.getPropertyValue('--books-head-height')!==value)books.style.setProperty('--books-head-height',value)})}).observe(head)})();
+</script>
 </body>
 </html>
