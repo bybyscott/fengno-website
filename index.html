@@ -7790,5 +7790,10 @@ html.beast-sensing-preview:has(.form-preview.is-current) .beast-sensing-launcher
 }
 </style>
 <style id="v061-instant-sensing">html.beast-sensing-preview .beast-sensing-overlay{transition:none!important}</style>
+<style id="v062-sensing-hide-story-hints">
+body:has(#beastSensingOverlay.is-open) .story-scene[data-dialogue-page="1"] .dialogue-layer::after{content:none!important;display:none!important;animation:none!important}
+body:has(#beastSensingOverlay.is-open) .scrollhint,
+body:has(#beastSensingOverlay.is-open) .dialogue-hint{visibility:hidden!important;pointer-events:none!important}
+</style>
 </body>
 </html>
