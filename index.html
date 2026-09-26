@@ -7844,5 +7844,20 @@ html.sensing-active .beast-sensing-launcher .beast-sensing-orb img{animation-pla
 .story-scene .dialogue-mobile-line + .dialogue-mobile-line{margin-top:8px!important}
 }
 </style>
+<style id="v069-dialogue-visible-group-center">
+@media(min-width:901px) and (hover:hover) and (pointer:fine){.story-scene .dialogue-layer{translate:var(--dialogue-group-offset,0px) 0}}
+@media(max-width:900px),(max-width:1400px) and (hover:none) and (pointer:coarse){.story-scene .dialogue-text{letter-spacing:.2em!important}.story-scene .dialogue-mobile-line + .dialogue-mobile-line{margin-top:6px!important}}
+</style>
+<script id="v069-dialogue-group-measure">
+(()=>{
+ const desktop=matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)');
+ const layers=[...document.querySelectorAll('.story-scene .dialogue-layer')];let pending=0;
+ function align(){pending=0;for(const layer of layers){if(!desktop.matches){layer.style.removeProperty('--dialogue-group-offset');continue}const rects=[...layer.querySelectorAll('.dialogue-portrait,.dialogue-portrait-bg,.dialogue-speaker,.dialogue-copy-text,.dialogue-click-icon')].filter(el=>{const s=getComputedStyle(el);return s.display!=='none'&&s.visibility!=='hidden'&&el.getClientRects().length}).map(el=>el.getBoundingClientRect()).filter(r=>r.width>0);if(!rects.length)continue;const left=Math.min(...rects.map(r=>r.left)),right=Math.max(...rects.map(r=>r.right));const delta=innerWidth/2-(left+right)/2;const previous=parseFloat(layer.style.getPropertyValue('--dialogue-group-offset'))||0;if(Math.abs(delta)>.25)layer.style.setProperty('--dialogue-group-offset',(previous+delta)+'px')}}
+ const schedule=()=>{if(!pending)pending=requestAnimationFrame(align)};
+ const resize=new ResizeObserver(schedule);const mutation=new MutationObserver(schedule);
+ for(const layer of layers){const box=layer.querySelector('.dialogue-box');if(box){resize.observe(box);mutation.observe(box,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-role','src','class']})}mutation.observe(layer.parentElement,{attributes:true,attributeFilter:['class']});layer.querySelectorAll('img').forEach(img=>img.addEventListener('load',schedule))}
+ addEventListener('resize',schedule,{passive:true});desktop.addEventListener('change',schedule);document.fonts.ready.then(schedule);schedule();
+})();
+</script>
 </body>
 </html>
