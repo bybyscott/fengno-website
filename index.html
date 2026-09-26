@@ -7475,8 +7475,8 @@ health:{num:'05',title:'健康搜神記',color:'#5c946b',scroll:'assets/release/
  if(!launcher||!overlay)return;
  overlay.replaceChildren();let savedY=0,savedOverflow='',opened=false,ready=false;
  const frame=document.createElement('iframe');frame.title='白澤神獸感應動畫';frame.src='beast-sensing.html?embedded=1&preload=1';frame.tabIndex=-1;frame.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#050706';overlay.append(frame);
- const close=()=>{if(!opened)return;opened=false;overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');frame.contentWindow.sensingReset();document.documentElement.style.overflow=savedOverflow;window.scrollTo({top:savedY,behavior:'instant'});launcher.focus({preventScroll:true})};
- launcher.addEventListener('click',()=>{if(opened||!ready)return;opened=true;savedY=scrollY;savedOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');frame.contentWindow.sensingPlay();frame.contentWindow.focus()});
+ const close=()=>{if(!opened)return;opened=false;overlay.classList.remove('is-open');document.documentElement.classList.remove('sensing-active');overlay.setAttribute('aria-hidden','true');frame.contentWindow.sensingReset();document.documentElement.style.overflow=savedOverflow;window.scrollTo({top:savedY,behavior:'instant'});launcher.focus({preventScroll:true})};
+ launcher.addEventListener('click',()=>{if(opened||!ready)return;opened=true;document.documentElement.classList.add("sensing-active");savedY=scrollY;savedOverflow=document.documentElement.style.overflow;document.documentElement.style.overflow='hidden';overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');frame.contentWindow.sensingPlay();frame.contentWindow.focus()});
  window.addEventListener('message',event=>{if(event.origin!==location.origin||event.source!==frame.contentWindow)return;if(event.data?.type==='feng:sensing-ready'){ready=true;document.documentElement.classList.add('beast-sensing-preview')}if(event.data?.type==='feng:sensing-close')close()});
 })();
 </script>
@@ -7794,6 +7794,14 @@ html.beast-sensing-preview:has(.form-preview.is-current) .beast-sensing-launcher
 body:has(#beastSensingOverlay.is-open) .story-scene[data-dialogue-page="1"] .dialogue-layer::after{content:none!important;display:none!important;animation:none!important}
 body:has(#beastSensingOverlay.is-open) .scrollhint,
 body:has(#beastSensingOverlay.is-open) .dialogue-hint{visibility:hidden!important;pointer-events:none!important}
+</style>
+<style id="v063-sensing-immediate-hide-and-nudge">
+html.sensing-active .dialogue-layer,html.sensing-active .scrollhint,html.sensing-active .dialogue-hint{display:none!important;visibility:hidden!important;opacity:0!important;transition:none!important;animation:none!important}
+html.sensing-active .dialogue-layer::before,html.sensing-active .dialogue-layer::after,html.sensing-active .scrollhint::before,html.sensing-active .scrollhint::after{content:none!important;display:none!important;transition:none!important;animation:none!important}
+html.beast-sensing-preview .beast-sensing-launcher .beast-sensing-orb img{transform-origin:50% 65%;animation:sensingButtonNudge 7s ease-in-out infinite}
+html.sensing-active .beast-sensing-launcher .beast-sensing-orb img{animation-play-state:paused}
+@keyframes sensingButtonNudge{0%,87%,100%{transform:translateX(0) rotate(0)}90%{transform:translateX(-2px) rotate(-5deg)}93%{transform:translateX(2px) rotate(5deg)}96%{transform:translateX(-1px) rotate(-2deg)}98%{transform:translateX(1px) rotate(1deg)}}
+@media(prefers-reduced-motion:reduce){html.beast-sensing-preview .beast-sensing-launcher .beast-sensing-orb img{animation:none!important}}
 </style>
 </body>
 </html>
